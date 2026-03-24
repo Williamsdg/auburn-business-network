@@ -182,7 +182,7 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch (err) {
         console.error('Submission error:', err);
-        alert('There was an error submitting your application. Please try again.');
+        alert('Error: ' + (err.message || JSON.stringify(err)));
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit Application';
       }
