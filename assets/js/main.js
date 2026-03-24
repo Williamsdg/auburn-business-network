@@ -86,8 +86,8 @@ function openBusinessModal(id) {
         <div class="modal-info-row">
           ${ICONS.location}
           <div>
-            <div class="info-label">Location</div>
-            <div class="info-value">${business.location}</div>
+            <div class="info-label">Address</div>
+            <div class="info-value">${business.address || business.location}</div>
           </div>
         </div>
         <div class="modal-info-row">

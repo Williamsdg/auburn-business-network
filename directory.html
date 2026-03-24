@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Business Directory — Auburn Business Network</title>
-  <meta name="description" content="Browse Auburn-owned businesses by location and industry. Find what you need from the Auburn family.">
+  <meta name="description" content="Browse Auburn-owned local businesses by industry. Find what you need from the Auburn family.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -34,7 +34,7 @@
   <section class="directory-header">
     <div class="container">
       <h1>Business Directory</h1>
-      <p>Find Auburn-owned businesses by location and industry</p>
+      <p>Browse locally-owned Auburn businesses by industry</p>
     </div>
   </section>
 
@@ -42,12 +42,6 @@
   <div class="filters-bar">
     <div class="container">
       <div class="filters-row">
-        <div class="filter-group">
-          <label for="filter-location">Location</label>
-          <select id="filter-location" onchange="applyFilters()">
-            <option value="">All Locations</option>
-          </select>
-        </div>
         <div class="filter-group">
           <label for="filter-industry">Industry</label>
           <select id="filter-industry" onchange="applyFilters()">
@@ -85,13 +79,7 @@
   <script src="assets/js/main.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const locationSelect = document.getElementById('filter-location');
       const industrySelect = document.getElementById('filter-industry');
-
-      // Populate filters
-      getLocations().forEach(loc => {
-        locationSelect.innerHTML += `<option value="${loc}">${loc}</option>`;
-      });
 
       getIndustries().forEach(ind => {
         industrySelect.innerHTML += `<option value="${ind}">${ind}</option>`;
@@ -99,7 +87,6 @@
 
       // Check URL params for pre-selected filters
       const params = new URLSearchParams(window.location.search);
-      if (params.get('location')) locationSelect.value = params.get('location');
       if (params.get('industry')) industrySelect.value = params.get('industry');
       if (params.get('q')) document.getElementById('filter-search').value = params.get('q');
 
@@ -107,11 +94,10 @@
     });
 
     function applyFilters() {
-      const location = document.getElementById('filter-location').value;
       const industry = document.getElementById('filter-industry').value;
       const query = document.getElementById('filter-search').value;
 
-      const results = searchBusinesses({ query, location, industry });
+      const results = searchBusinesses({ query, industry });
 
       const grid = document.getElementById('results-grid');
       const noResults = document.getElementById('no-results');
@@ -130,7 +116,6 @@
 
       // Update URL params without reload
       const params = new URLSearchParams();
-      if (location) params.set('location', location);
       if (industry) params.set('industry', industry);
       if (query) params.set('q', query);
       const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname;
