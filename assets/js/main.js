@@ -97,25 +97,36 @@ function createBusinessCard(business) {
 
   return `
     <div class="business-card" data-id="${business.id}" onclick="openBusinessModal('${business.id}')">
-      <div class="card-header" style="background:${color}">
-        <div class="card-verified" title="Auburn Verified">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          Auburn Verified
+      <div class="card-inner">
+        <div class="card-top-bar">
+          <span class="card-type-badge">${business.industry}</span>
+          <span class="card-we-badge">WE</span>
         </div>
-        <div class="card-icon">${icon}</div>
-        <h3>${business.name}</h3>
-        <span class="card-industry">${business.industry}</span>
-      </div>
-      <div class="card-body">
-        <div class="card-location">
-          ${ICONS.location}
-          <span>${business.location}</span>
+        <div class="card-art" style="background:${color}">
+          <div class="card-art-icon">${icon}</div>
+          <div class="card-art-pattern"></div>
         </div>
-        <p class="card-bio">${business.bio}</p>
-      </div>
-      <div class="card-footer">
-        <span class="view-btn">View Details ${ICONS.arrow}</span>
-        <div class="card-contact-actions">${contactActions.join('')}</div>
+        <div class="card-name-bar">
+          <h3>${business.name}</h3>
+          <span class="card-verified-dot" title="Auburn Verified"></span>
+        </div>
+        <div class="card-desc">
+          <p>${business.bio}</p>
+        </div>
+        <div class="card-stats">
+          <div class="card-stat">
+            <span class="stat-icon">${ICONS.location}</span>
+            <span class="stat-text">${business.location}</span>
+          </div>
+          <div class="card-stat">
+            <span class="stat-icon">${ICONS.user}</span>
+            <span class="stat-text">${business.owner}</span>
+          </div>
+        </div>
+        <div class="card-bottom">
+          <span class="card-brand">Auburn Business Network</span>
+          <div class="card-contact-actions">${contactActions.join('')}</div>
+        </div>
       </div>
     </div>
   `;
