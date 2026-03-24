@@ -82,7 +82,7 @@
           </div>
           <div class="stat-card">
             <div class="stat-number" id="stat-locations">0</div>
-            <div class="stat-label">Paid Listings</div>
+            <div class="stat-label">Live Listings</div>
           </div>
           <div class="stat-card">
             <div class="stat-number" id="stat-industries">0</div>
@@ -195,8 +195,8 @@
     function renderStats() {
       document.getElementById('stat-total').textContent = _allBusinesses.length;
       document.getElementById('stat-pending').textContent = _applications.filter(a => a.status === 'pending').length;
-      const paid = _allBusinesses.filter(b => b.payment_status === 'paid').length;
-      document.getElementById('stat-locations').textContent = paid;
+      const live = _allBusinesses.filter(b => b.payment_status === 'paid' || b.payment_status === 'waived').length;
+      document.getElementById('stat-locations').textContent = live;
       document.getElementById('stat-industries').textContent = [...new Set(_allBusinesses.map(b => b.industry))].length;
     }
 
@@ -235,13 +235,16 @@
           <td>${b.industry}</td>
           <td>${b.location}</td>
           <td>
-            <span class="status-badge ${b.payment_status === 'paid' ? 'active' : 'pending'}">
-              ${b.payment_status === 'paid' ? 'Paid' : 'Unpaid'}
+            <span class="status-badge ${b.payment_status === 'paid' || b.payment_status === 'waived' ? 'active' : 'pending'}">
+              ${b.payment_status === 'paid' ? 'Paid' : b.payment_status === 'waived' ? 'Waived' : 'Unpaid'}
             </span>
           </td>
           <td>
             <div class="action-btns">
-              ${b.payment_status !== 'paid' ? `<button class="action-btn approve" onclick="markPaid('${b.id}')">Mark Paid</button>` : ''}
+              ${b.payment_status === 'unpaid' ? `
+                <button class="action-btn approve" onclick="markPaid('${b.id}')">Mark Paid</button>
+                <button class="action-btn" onclick="waivePayment('${b.id}')" style="background:#6c757d;color:#fff;">Waive</button>
+              ` : ''}
             </div>
           </td>
         </tr>
@@ -286,6 +289,18 @@
       } catch (err) {
         console.error(err);
         alert('Error updating payment status.');
+      }
+    }
+
+    async function waivePayment(id) {
+      if (!confirm('Waive payment for this business? Their listing will go live for free.')) return;
+      try {
+        await updateBusinessPayment(id, 'waived');
+        alert('Payment waived! Business is now live on the directory.');
+        await refreshData();
+      } catch (err) {
+        console.error(err);
+        alert('Error waiving payment.');
       }
     }
 
