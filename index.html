@@ -413,24 +413,36 @@
 
     /* === Responsive === */
     @media (max-width: 768px) {
-      h1 { font-size: 2rem; }
-      h2 { font-size: 1.6rem; }
+      h1 { font-size: 1.8rem; }
+      h2 { font-size: 1.4rem; }
+      .navbar .container { height: 60px; }
+      .nav-brand { font-size: 1rem; gap: 8px; }
+      .nav-brand .brand-icon { width: 32px; height: 32px; font-size: 0.85rem; }
       .nav-toggle { display: flex; }
       .nav-links {
-        display: none; position: absolute; top: 70px; left: 0; right: 0;
+        display: none; position: absolute; top: 60px; left: 0; right: 0;
         background: var(--navy); flex-direction: column;
-        padding: 16px 24px; gap: 4px;
-        box-shadow: var(--shadow-md);
-        border-top: 1px solid rgba(255,255,255,0.06);
+        padding: 8px 16px; gap: 2px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        border-top: 1px solid rgba(242,101,34,0.1);
       }
       .nav-links.open { display: flex; }
-      .nav-links a { padding: 12px 16px; width: 100%; }
-      .hero { padding: 60px 0; }
-      .hero h1 { font-size: 2.2rem; }
+      .nav-links a { padding: 12px 14px; width: 100%; font-size: 0.9rem; border-radius: 8px; }
+      .nav-links .btn-nav { text-align: center; margin: 4px 0 8px; }
+      .hero { padding: 48px 0; }
+      .hero h1 { font-size: 1.9rem; line-height: 1.15; }
+      .hero p { font-size: 1rem; margin-bottom: 28px; }
       .search-box { flex-direction: column; }
-      .steps-grid { grid-template-columns: 1fr; gap: 20px; }
+      .steps-grid { grid-template-columns: 1fr; gap: 16px; }
+      .step-card { padding: 28px 20px; }
       .business-grid { grid-template-columns: 1fr; }
       .modal-actions { flex-direction: column; }
+      .cta-banner .btn { width: 100%; justify-content: center; }
+    }
+    @media (max-width: 480px) {
+      .container { padding: 0 16px; }
+      .hero h1 { font-size: 1.6rem; }
+      .step-number { width: 44px; height: 44px; font-size: 1.1rem; }
     }
   </style>
 </head>
@@ -544,13 +556,62 @@
   </section>
 
   <!-- Email Capture -->
-  <section style="padding:60px 0;background:var(--navy-dark);text-align:center;border-top:1px solid rgba(255,255,255,0.03);">
-    <div class="container" style="max-width:600px;">
-      <h3 style="margin-bottom:8px;">Get Auburn Business Picks for Every Away Game</h3>
-      <p style="color:rgba(255,255,255,0.45);font-size:0.95rem;margin-bottom:24px;">We'll send you Auburn-owned businesses to visit wherever the Tigers play.</p>
-      <div style="display:flex;gap:8px;max-width:480px;margin:0 auto;">
-        <input type="email" placeholder="Your email" style="flex:1;padding:14px 16px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.95rem;outline:none;font-family:inherit;">
-        <button class="btn btn-primary" style="white-space:nowrap;">War Eagle</button>
+  <section style="padding:70px 0;background:linear-gradient(160deg, var(--navy-mid), var(--navy-dark));border-top:1px solid rgba(255,255,255,0.03);">
+    <div class="container" style="max-width:640px;text-align:center;">
+      <div style="width:56px;height:56px;background:linear-gradient(135deg,var(--orange),var(--orange-hover));border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 4px 16px rgba(242,101,34,0.3);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <h2 style="margin-bottom:8px;font-size:1.8rem;">Get Auburn Business Picks for Every Away Game</h2>
+      <p style="color:rgba(255,255,255,0.45);font-size:0.95rem;margin-bottom:28px;">We'll send you Auburn-owned businesses near every away game city. Pick your sports below.</p>
+
+      <form id="subscribe-form" onsubmit="return handleSubscribe(event)">
+        <!-- Email -->
+        <div style="max-width:480px;margin:0 auto 24px;">
+          <input type="email" id="sub-email" required placeholder="Your email address" style="width:100%;padding:14px 16px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.95rem;outline:none;font-family:inherit;transition:0.25s ease;" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+        </div>
+
+        <!-- Sport Selection -->
+        <p style="color:var(--orange);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">Select Your Sports</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:520px;margin:0 auto 28px;" id="sport-checks">
+          <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;transition:0.25s ease;font-size:0.85rem;color:rgba(255,255,255,0.6);" class="sport-label">
+            <input type="checkbox" name="sport" value="Football" checked style="accent-color:#F26522;width:16px;height:16px;"> Football
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;transition:0.25s ease;font-size:0.85rem;color:rgba(255,255,255,0.6);" class="sport-label">
+            <input type="checkbox" name="sport" value="Basketball" checked style="accent-color:#F26522;width:16px;height:16px;"> Basketball
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;transition:0.25s ease;font-size:0.85rem;color:rgba(255,255,255,0.6);" class="sport-label">
+            <input type="checkbox" name="sport" value="Baseball" style="accent-color:#F26522;width:16px;height:16px;"> Baseball
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;transition:0.25s ease;font-size:0.85rem;color:rgba(255,255,255,0.6);" class="sport-label">
+            <input type="checkbox" name="sport" value="Softball" style="accent-color:#F26522;width:16px;height:16px;"> Softball
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;transition:0.25s ease;font-size:0.85rem;color:rgba(255,255,255,0.6);" class="sport-label">
+            <input type="checkbox" name="sport" value="Gymnastics" style="accent-color:#F26522;width:16px;height:16px;"> Gymnastics
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;transition:0.25s ease;font-size:0.85rem;color:rgba(255,255,255,0.6);" class="sport-label">
+            <input type="checkbox" name="sport" value="Soccer" style="accent-color:#F26522;width:16px;height:16px;"> Soccer
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;transition:0.25s ease;font-size:0.85rem;color:rgba(255,255,255,0.6);" class="sport-label">
+            <input type="checkbox" name="sport" value="Swimming" style="accent-color:#F26522;width:16px;height:16px;"> Swimming & Diving
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;transition:0.25s ease;font-size:0.85rem;color:rgba(255,255,255,0.6);" class="sport-label">
+            <input type="checkbox" name="sport" value="Track" style="accent-color:#F26522;width:16px;height:16px;"> Track & Field
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;transition:0.25s ease;font-size:0.85rem;color:rgba(255,255,255,0.6);" class="sport-label">
+            <input type="checkbox" name="sport" value="All" style="accent-color:#F26522;width:16px;height:16px;"> All Sports
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="sub-btn" style="padding:14px 36px;font-size:1rem;">War Eagle — Subscribe</button>
+      </form>
+
+      <!-- Success -->
+      <div id="sub-success" style="display:none;">
+        <div style="width:56px;height:56px;background:#22c55e;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h3 style="margin-bottom:6px;">You're In! War Eagle!</h3>
+        <p style="color:rgba(255,255,255,0.45);font-size:0.9rem;">We'll send you Auburn business recommendations before every away game.</p>
       </div>
     </div>
   </section>
@@ -586,6 +647,57 @@
       const params = new URLSearchParams();
       if (industry) params.set('industry', industry);
       window.location.href = `directory.html${params.toString() ? '?' + params.toString() : ''}`;
+    }
+
+    // "All Sports" toggle
+    document.querySelector('input[value="All"]').addEventListener('change', function() {
+      document.querySelectorAll('input[name="sport"]').forEach(cb => {
+        if (cb.value !== 'All') cb.checked = this.checked;
+      });
+    });
+
+    // Uncheck "All" if any individual sport is unchecked
+    document.querySelectorAll('input[name="sport"]').forEach(cb => {
+      if (cb.value !== 'All') {
+        cb.addEventListener('change', function() {
+          if (!this.checked) document.querySelector('input[value="All"]').checked = false;
+        });
+      }
+    });
+
+    async function handleSubscribe(e) {
+      e.preventDefault();
+      const email = document.getElementById('sub-email').value.trim();
+      const sports = [...document.querySelectorAll('input[name="sport"]:checked')].map(c => c.value).filter(v => v !== 'All');
+
+      if (sports.length === 0) {
+        alert('Please select at least one sport.');
+        return false;
+      }
+
+      const btn = document.getElementById('sub-btn');
+      btn.disabled = true;
+      btn.textContent = 'Subscribing...';
+
+      try {
+        const { error } = await db.from('subscribers').insert([{ email, sports }]);
+        if (error) {
+          if (error.code === '23505') {
+            // Duplicate email — update their sports
+            await db.from('subscribers').update({ sports }).eq('email', email);
+          } else {
+            throw error;
+          }
+        }
+        document.getElementById('subscribe-form').style.display = 'none';
+        document.getElementById('sub-success').style.display = 'block';
+      } catch (err) {
+        console.error(err);
+        alert('Something went wrong. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'War Eagle — Subscribe';
+      }
+      return false;
     }
   </script>
 
