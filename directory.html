@@ -399,6 +399,12 @@
     <div class="container">
       <div class="filters-row">
         <div class="filter-group">
+          <label for="filter-state">State</label>
+          <select id="filter-state" onchange="applyFilters()">
+            <option value="">All States</option>
+          </select>
+        </div>
+        <div class="filter-group">
           <label for="filter-location">City</label>
           <select id="filter-location" onchange="applyFilters()">
             <option value="">All Cities</option>
@@ -442,10 +448,13 @@
   <script src="assets/js/data.js"></script>
   <script src="assets/js/main.js?v=3"></script>
   <script>
+    const STATE_NAMES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
+
     document.addEventListener('DOMContentLoaded', async () => {
       await loadBusinesses();
       const industrySelect = document.getElementById('filter-industry');
       const locationSelect = document.getElementById('filter-location');
+      const stateSelect = document.getElementById('filter-state');
 
       getIndustries().forEach(ind => {
         industrySelect.innerHTML += `<option value="${ind}">${ind}</option>`;
@@ -454,8 +463,15 @@
         locationSelect.innerHTML += `<option value="${loc}">${loc}</option>`;
       });
 
+      // Populate states from businesses
+      const states = [...new Set(_businessesCache.filter(b => b.state).map(b => b.state))].sort();
+      states.forEach(st => {
+        stateSelect.innerHTML += `<option value="${st}">${STATE_NAMES[st] || st}</option>`;
+      });
+
       // Check URL params for pre-selected filters
       const params = new URLSearchParams(window.location.search);
+      if (params.get('state')) stateSelect.value = params.get('state');
       if (params.get('industry')) industrySelect.value = params.get('industry');
       if (params.get('location')) locationSelect.value = params.get('location');
       if (params.get('q')) document.getElementById('filter-search').value = params.get('q');
@@ -464,11 +480,17 @@
     });
 
     function applyFilters() {
+      const state = document.getElementById('filter-state').value;
       const industry = document.getElementById('filter-industry').value;
       const location = document.getElementById('filter-location').value;
       const query = document.getElementById('filter-search').value;
 
-      const results = searchBusinesses({ query, industry, location });
+      let results = searchBusinesses({ query, industry, location });
+
+      // Filter by state
+      if (state) {
+        results = results.filter(b => b.state === state);
+      }
 
       const grid = document.getElementById('results-grid');
       const noResults = document.getElementById('no-results');
@@ -487,6 +509,7 @@
 
       // Update URL params without reload
       const params = new URLSearchParams();
+      if (state) params.set('state', state);
       if (industry) params.set('industry', industry);
       if (location) params.set('location', location);
       if (query) params.set('q', query);
