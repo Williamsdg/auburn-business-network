@@ -397,7 +397,19 @@
   <!-- Filters -->
   <div class="filters-bar">
     <div class="container">
-      <div class="filters-row">
+      <!-- View Tabs -->
+      <div class="view-tabs" style="display:flex;gap:4px;margin-bottom:16px;">
+        <button class="view-tab active" id="tab-browse" onclick="switchView('browse')" style="padding:10px 20px;border-radius:8px;font-weight:600;font-size:0.88rem;cursor:pointer;transition:0.25s ease;background:var(--orange);color:#fff;border:none;">Browse All</button>
+        <button class="view-tab" id="tab-nearme" onclick="switchView('nearme')" style="padding:10px 20px;border-radius:8px;font-weight:600;font-size:0.88rem;cursor:pointer;transition:0.25s ease;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.06);">
+          <span style="display:inline-flex;align-items:center;gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Near Me
+          </span>
+        </button>
+      </div>
+
+      <!-- Browse Filters -->
+      <div id="browse-filters" class="filters-row">
         <div class="filter-group">
           <label for="filter-state">State</label>
           <select id="filter-state" onchange="applyFilters()">
@@ -419,6 +431,23 @@
         <div class="filter-group" style="flex:2;">
           <label for="filter-search">Search</label>
           <input type="text" id="filter-search" placeholder="Search by name, keyword, or owner..." oninput="applyFilters()">
+        </div>
+      </div>
+
+      <!-- Near Me Controls (hidden by default) -->
+      <div id="nearme-controls" style="display:none;">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:0.78rem;font-weight:600;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;">Radius</label>
+            <select id="nearme-radius" onchange="applyNearMe()" style="padding:10px 14px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem;font-family:inherit;">
+              <option value="25">25 miles</option>
+              <option value="50" selected>50 miles</option>
+              <option value="100">100 miles</option>
+              <option value="250">250 miles</option>
+              <option value="500">500 miles</option>
+            </select>
+          </div>
+          <div id="nearme-status" style="font-size:0.88rem;color:rgba(255,255,255,0.5);"></div>
         </div>
       </div>
     </div>
@@ -515,6 +544,105 @@
       if (query) params.set('q', query);
       const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname;
       history.replaceState(null, '', newUrl);
+    }
+    // === View Switching ===
+    let currentView = 'browse';
+    let userLat = null;
+    let userLng = null;
+
+    function switchView(view) {
+      currentView = view;
+      const browseTab = document.getElementById('tab-browse');
+      const nearmeTab = document.getElementById('tab-nearme');
+      const browseFilters = document.getElementById('browse-filters');
+      const nearmeControls = document.getElementById('nearme-controls');
+
+      if (view === 'browse') {
+        browseTab.style.background = 'var(--orange)';
+        browseTab.style.color = '#fff';
+        browseTab.style.border = 'none';
+        nearmeTab.style.background = 'rgba(255,255,255,0.04)';
+        nearmeTab.style.color = 'rgba(255,255,255,0.5)';
+        nearmeTab.style.border = '1px solid rgba(255,255,255,0.06)';
+        browseFilters.style.display = '';
+        nearmeControls.style.display = 'none';
+        applyFilters();
+      } else {
+        nearmeTab.style.background = 'var(--orange)';
+        nearmeTab.style.color = '#fff';
+        nearmeTab.style.border = 'none';
+        browseTab.style.background = 'rgba(255,255,255,0.04)';
+        browseTab.style.color = 'rgba(255,255,255,0.5)';
+        browseTab.style.border = '1px solid rgba(255,255,255,0.06)';
+        browseFilters.style.display = 'none';
+        nearmeControls.style.display = '';
+        requestLocation();
+      }
+    }
+
+    function requestLocation() {
+      const status = document.getElementById('nearme-status');
+      if (userLat && userLng) {
+        applyNearMe();
+        return;
+      }
+      if (!navigator.geolocation) {
+        status.innerHTML = '<span style="color:#ef4444;">Geolocation is not supported by your browser.</span>';
+        return;
+      }
+      status.textContent = 'Finding your location...';
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          userLat = pos.coords.latitude;
+          userLng = pos.coords.longitude;
+          applyNearMe();
+        },
+        (err) => {
+          status.innerHTML = '<span style="color:#ef4444;">Location access denied. Please allow location access and try again.</span>';
+        }
+      );
+    }
+
+    function getDistance(lat1, lng1, lat2, lng2) {
+      const R = 3959; // miles
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng/2) * Math.sin(dLng/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function applyNearMe() {
+      if (!userLat || !userLng) return;
+      const radius = parseInt(document.getElementById('nearme-radius').value);
+      const status = document.getElementById('nearme-status');
+
+      const nearby = _businessesCache
+        .filter(b => b.lat && b.lng)
+        .map(b => ({ ...b, distance: getDistance(userLat, userLng, b.lat, b.lng) }))
+        .filter(b => b.distance <= radius)
+        .sort((a, b) => a.distance - b.distance);
+
+      const grid = document.getElementById('results-grid');
+      const noResults = document.getElementById('no-results');
+      const countEl = document.getElementById('results-count');
+
+      if (nearby.length === 0) {
+        grid.style.display = 'none';
+        noResults.style.display = 'block';
+        noResults.querySelector('h3').textContent = 'No businesses nearby';
+        noResults.querySelector('p').textContent = 'Try increasing the radius to find Auburn businesses further out.';
+        countEl.innerHTML = '';
+        status.textContent = 'No businesses within ' + radius + ' miles.';
+      } else {
+        grid.style.display = '';
+        noResults.style.display = 'none';
+        grid.innerHTML = nearby.map(b => createBusinessCard(b)).join('');
+        countEl.innerHTML = 'Showing <strong>' + nearby.length + '</strong> business' + (nearby.length !== 1 ? 'es' : '') + ' within <strong>' + radius + ' miles</strong>';
+        status.innerHTML = '<span style="color:#22c55e;">Location found</span> — showing nearest businesses first';
+      }
     }
   </script>
 
