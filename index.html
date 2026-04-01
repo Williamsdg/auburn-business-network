@@ -447,6 +447,24 @@
       border-color: var(--orange);
       color: var(--orange);
     }
+    .ind-pill {
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.4);
+      user-select: none;
+    }
+    .ind-pill:hover { border-color: rgba(245,158,11,0.3); color: rgba(255,255,255,0.6); }
+    .ind-pill.active {
+      background: rgba(245,158,11,0.12);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
 
     @media (max-width: 768px) {
       .container > div[style*="grid-template-columns:1fr 1fr"] {
@@ -662,19 +680,22 @@
 
             <!-- Industry Preference -->
             <div style="margin-bottom:18px;">
-              <label style="display:block;font-size:0.7rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">I'm interested in</label>
-              <select id="sub-industry" style="width:100%;padding:12px 14px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#fff;font-size:0.9rem;outline:none;font-family:inherit;transition:0.25s ease;" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
-                <option value="All" style="background:#03244d;">All Business Types</option>
-                <option value="Food & Beverage" style="background:#03244d;">Restaurants & Food</option>
-                <option value="Automotive" style="background:#03244d;">Automotive</option>
-                <option value="Healthcare" style="background:#03244d;">Healthcare & Dental</option>
-                <option value="Home Services" style="background:#03244d;">Home Services</option>
-                <option value="Legal" style="background:#03244d;">Legal</option>
-                <option value="Financial Services" style="background:#03244d;">Financial Services</option>
-                <option value="Technology" style="background:#03244d;">Technology</option>
-                <option value="Real Estate" style="background:#03244d;">Real Estate</option>
-                <option value="Health & Fitness" style="background:#03244d;">Health & Fitness</option>
-              </select>
+              <label style="display:block;font-size:0.7rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">I'm interested in</label>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;" id="industry-checks">
+                <span class="ind-pill active" data-ind="All" onclick="toggleInd(this)">All Types</span>
+                <span class="ind-pill" data-ind="Food & Beverage" onclick="toggleInd(this)">Restaurants & Food</span>
+                <span class="ind-pill" data-ind="Automotive" onclick="toggleInd(this)">Automotive</span>
+                <span class="ind-pill" data-ind="Healthcare" onclick="toggleInd(this)">Healthcare</span>
+                <span class="ind-pill" data-ind="Home Services" onclick="toggleInd(this)">Home Services</span>
+                <span class="ind-pill" data-ind="Legal" onclick="toggleInd(this)">Legal</span>
+                <span class="ind-pill" data-ind="Financial Services" onclick="toggleInd(this)">Financial</span>
+                <span class="ind-pill" data-ind="Technology" onclick="toggleInd(this)">Technology</span>
+                <span class="ind-pill" data-ind="Real Estate" onclick="toggleInd(this)">Real Estate</span>
+                <span class="ind-pill" data-ind="Health & Fitness" onclick="toggleInd(this)">Fitness</span>
+                <span class="ind-pill" data-ind="Insurance" onclick="toggleInd(this)">Insurance</span>
+                <span class="ind-pill" data-ind="Marketing" onclick="toggleInd(this)">Marketing</span>
+                <span class="ind-pill" data-ind="Construction" onclick="toggleInd(this)">Construction</span>
+              </div>
             </div>
 
             <!-- Sports -->
@@ -742,6 +763,26 @@
       window.location.href = `directory.html${params.toString() ? '?' + params.toString() : ''}`;
     }
 
+    // Industry pill toggle
+    function toggleInd(el) {
+      if (el.dataset.ind === 'All') {
+        const isActive = el.classList.toggle('active');
+        document.querySelectorAll('.ind-pill').forEach(p => {
+          if (p.dataset.ind !== 'All') {
+            if (isActive) p.classList.remove('active');
+          }
+        });
+      } else {
+        el.classList.toggle('active');
+        // Uncheck "All" if individual selected
+        const allPill = document.querySelector('.ind-pill[data-ind="All"]');
+        if (allPill && el.classList.contains('active')) allPill.classList.remove('active');
+        // If none selected, reactivate "All"
+        const anyActive = document.querySelectorAll('.ind-pill.active:not([data-ind="All"])').length > 0;
+        if (!anyActive && allPill) allPill.classList.add('active');
+      }
+    }
+
     // Sport pill toggle
     function toggleSport(el) {
       el.classList.toggle('active');
@@ -762,7 +803,7 @@
       e.preventDefault();
       const email = document.getElementById('sub-email').value.trim();
       const sports = [...document.querySelectorAll('.sport-pill.active')].map(p => p.dataset.sport);
-      const industry = document.getElementById('sub-industry').value;
+      const industries = [...document.querySelectorAll('.ind-pill.active')].map(p => p.dataset.ind);
 
       if (sports.length === 0) {
         alert('Please select at least one sport.');
@@ -775,7 +816,7 @@
 
       try {
         const { data, error } = await db.from('subscribers').upsert(
-          { email: email, sports: sports, preferred_industry: industry },
+          { email: email, sports: sports, preferred_industries: industries },
           { onConflict: 'email' }
         );
         if (error) throw error;
