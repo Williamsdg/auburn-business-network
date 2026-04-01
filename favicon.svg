@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 440" width="400" height="440">
+  <defs>
+    <linearGradient id="v2-navy-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0a3a6b"/>
+      <stop offset="100%" stop-color="#03244d"/>
+    </linearGradient>
+    <linearGradient id="v2-orange-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F26522"/>
+      <stop offset="100%" stop-color="#d4550f"/>
+    </linearGradient>
+    <clipPath id="v2-shield-clip">
+      <path d="M200,20 L350,75 L350,240 C350,315 275,375 200,395 C125,375 50,315 50,240 L50,75 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- Outer background -->
+  <rect width="400" height="440" fill="#020e1f" rx="12"/>
+
+  <!-- Shield shape - orange border -->
+  <path d="M200,15 L355,72 L355,242 C355,320 278,380 200,400 C122,380 45,320 45,242 L45,72 Z" fill="url(#v2-orange-grad)"/>
+
+  <!-- Shield inner fill - navy -->
+  <path d="M200,25 L345,78 L345,238 C345,312 272,370 200,390 C128,370 55,312 55,238 L55,78 Z" fill="url(#v2-navy-grad)"/>
+
+  <!-- Faint Samford Hall silhouette -->
+  <g clip-path="url(#v2-shield-clip)" opacity="0.06" fill="#FFFFFF">
+    <rect x="50" y="270" width="300" height="60"/>
+    <rect x="140" y="195" width="120" height="75"/>
+    <rect x="178" y="125" width="44" height="70"/>
+    <polygon points="200,85 175,125 225,125"/>
+    <ellipse cx="200" cy="128" rx="25" ry="8"/>
+    <rect x="80" y="225" width="55" height="45"/>
+    <polygon points="80,225 107,210 135,225"/>
+    <rect x="265" y="225" width="55" height="45"/>
+    <polygon points="265,225 292,210 320,225"/>
+    <rect x="152" y="210" width="4" height="55"/>
+    <rect x="168" y="210" width="4" height="55"/>
+    <rect x="184" y="210" width="4" height="55"/>
+    <rect x="200" y="210" width="4" height="55"/>
+    <rect x="216" y="210" width="4" height="55"/>
+    <rect x="232" y="210" width="4" height="55"/>
+    <circle cx="70" cy="245" r="16"/>
+    <circle cx="330" cy="245" r="16"/>
+  </g>
+
+  <!-- Decorative line above text -->
+  <line x1="110" y1="145" x2="290" y2="145" stroke="#F26522" stroke-width="1.5" opacity="0.5"/>
+  <polygon points="105,145 108,141 111,145 108,149" fill="#F26522" opacity="0.5"/>
+  <polygon points="289,145 292,141 295,145 292,149" fill="#F26522" opacity="0.5"/>
+
+  <!-- BUY text -->
+  <text x="200" y="200" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="52" fill="#FFFFFF" text-anchor="middle" letter-spacing="8">BUY</text>
+
+  <!-- AUBURN text -->
+  <text x="200" y="250" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="40" fill="#F26522" text-anchor="middle" letter-spacing="4">AUBURN</text>
+
+  <!-- Decorative line below text -->
+  <line x1="110" y1="265" x2="290" y2="265" stroke="#F26522" stroke-width="1.5" opacity="0.5"/>
+  <polygon points="105,265 108,261 111,265 108,269" fill="#F26522" opacity="0.5"/>
+  <polygon points="289,265 292,261 295,265 292,269" fill="#F26522" opacity="0.5"/>
+
+  <!-- EST text inside shield -->
+  <text x="200" y="300" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="10" fill="rgba(255,255,255,0.35)" text-anchor="middle" letter-spacing="3">EST. 2026</text>
+
+  <!-- Tagline BELOW shield -->
+  <text x="200" y="428" font-family="Arial,Helvetica,sans-serif" font-weight="500" font-size="11" fill="rgba(255,255,255,0.4)" text-anchor="middle" letter-spacing="3">SUPPORT THE AUBURN FAMILY</text>
+</svg>
