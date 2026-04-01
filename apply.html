@@ -315,6 +315,23 @@
           </div>
         </div>
         <div class="form-group">
+          <label>Business Logo or Photo</label>
+          <div id="logo-upload-area" style="border:2px dashed rgba(255,255,255,0.1);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:0.25s ease;position:relative;" onclick="document.getElementById('logo-input').click()" onmouseover="this.style.borderColor='var(--orange)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
+            <input type="file" id="logo-input" name="logo" accept="image/*" style="display:none;" onchange="previewLogo(this)">
+            <div id="logo-placeholder">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" style="margin-bottom:8px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+              <p style="color:rgba(255,255,255,0.4);font-size:0.85rem;margin-bottom:4px;">Click to upload your business logo or photo</p>
+              <p style="color:rgba(255,255,255,0.25);font-size:0.75rem;">PNG, JPG, or WEBP — max 2MB</p>
+            </div>
+            <div id="logo-preview" style="display:none;">
+              <img id="logo-preview-img" style="max-width:120px;max-height:120px;border-radius:8px;margin-bottom:8px;">
+              <p id="logo-preview-name" style="color:rgba(255,255,255,0.5);font-size:0.8rem;"></p>
+              <button type="button" onclick="event.stopPropagation();removeLogo()" style="margin-top:6px;padding:4px 12px;background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.2);border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;">Remove</button>
+            </div>
+          </div>
+          <span class="help-text">Optional — if you don't upload one, we'll generate a logo for your listing</span>
+        </div>
+        <div class="form-group">
           <label>Business Website</label>
           <input type="text" name="website" placeholder="yourbusiness.com">
           <span class="help-text">Optional — we'll link to your site from your listing</span>
@@ -383,13 +400,53 @@
   <script src="assets/js/data.js"></script>
   <script src="assets/js/main.js"></script>
   <script>
+    function previewLogo(input) {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) {
+        alert('File too large. Please upload an image under 2MB.');
+        input.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('logo-preview-img').src = e.target.result;
+        document.getElementById('logo-preview-name').textContent = file.name;
+        document.getElementById('logo-placeholder').style.display = 'none';
+        document.getElementById('logo-preview').style.display = '';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeLogo() {
+      document.getElementById('logo-input').value = '';
+      document.getElementById('logo-placeholder').style.display = '';
+      document.getElementById('logo-preview').style.display = 'none';
+    }
+
+    async function uploadLogo(file) {
+      const ext = file.name.split('.').pop().toLowerCase();
+      const fileName = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+
+      const { data, error } = await db.storage
+        .from('business-logos')
+        .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+      if (error) throw error;
+
+      const { data: urlData } = db.storage
+        .from('business-logos')
+        .getPublicUrl(fileName);
+
+      return urlData.publicUrl;
+    }
+
     async function handleApply(e) {
       e.preventDefault();
       const form = document.getElementById('apply-form');
       const success = document.getElementById('form-success');
       const submitBtn = form.querySelector('button[type="submit"]');
 
-      // Disable button while submitting
       submitBtn.disabled = true;
       submitBtn.textContent = 'Submitting...';
 
@@ -397,6 +454,16 @@
         const formData = new FormData(form);
         let website = formData.get('website')?.trim() || '';
         if (website && !website.startsWith('http')) website = 'https://' + website;
+
+        // Upload logo if provided
+        let logoUrl = null;
+        const logoFile = document.getElementById('logo-input').files[0];
+        if (logoFile) {
+          submitBtn.textContent = 'Uploading logo...';
+          logoUrl = await uploadLogo(logoFile);
+        }
+
+        submitBtn.textContent = 'Submitting application...';
         await submitApplication({
           businessName: formData.get('businessName'),
           industry: formData.get('industry'),
@@ -408,7 +475,8 @@
           ownerName: formData.get('ownerName'),
           email: formData.get('email'),
           phone: formData.get('phone'),
-          auburnConnection: formData.get('auburnConnection')
+          auburnConnection: formData.get('auburnConnection'),
+          logoUrl: logoUrl
         });
 
         form.style.display = 'none';

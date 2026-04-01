@@ -78,7 +78,8 @@ async function submitApplication(formData) {
       owner_name: formData.ownerName,
       email: formData.email,
       phone: formData.phone,
-      auburn_connection: formData.auburnConnection
+      auburn_connection: formData.auburnConnection,
+      logo_url: formData.logoUrl || null
     }]);
 
   if (error) throw error;
@@ -162,7 +163,8 @@ async function approveAndCreateBusiness(application) {
       phone: application.phone,
       status: 'active',
       payment_status: 'unpaid',
-      application_id: application.id
+      application_id: application.id,
+      logo_url: application.logo_url || null
     }]);
 
   if (error) throw error;

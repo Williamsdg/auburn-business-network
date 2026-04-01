@@ -167,7 +167,10 @@ function createBusinessCard(business) {
           <span class="card-we-badge">WE</span>
         </div>
         <div class="card-art" style="background:${color}">
-          <div class="card-logo">${generateLogo(business)}</div>
+          ${business.logo_url
+            ? `<img src="${business.logo_url}" alt="${business.name} logo" class="card-logo-img" style="position:absolute;top:8px;left:8px;width:56px;height:56px;border-radius:10px;object-fit:cover;z-index:2;border:2px solid rgba(255,255,255,0.15);box-shadow:0 2px 8px rgba(0,0,0,0.3);">`
+            : `<div class="card-logo">${generateLogo(business)}</div>`
+          }
           <div class="card-art-icon">${icon}</div>
           <div class="card-art-pattern"></div>
         </div>
