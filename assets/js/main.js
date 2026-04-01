@@ -214,11 +214,15 @@ function openBusinessModal(id) {
   modal.className = 'modal-overlay';
   modal.innerHTML = `
     <div class="modal">
-      <div class="modal-header" style="background:${color}">
+      <div class="modal-header" style="background:${color};${business.logo_url ? 'position:relative;overflow:hidden;' : ''}">
+        ${business.logo_url ? '<img src="' + business.logo_url + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.2;">' : ''}
         <button class="modal-close" onclick="closeModal(this)">&times;</button>
-        <div class="modal-icon">${icon}</div>
-        <h2>${business.name}</h2>
-        <span class="modal-industry">${business.industry}</span>
+        ${business.logo_url
+          ? '<img src="' + business.logo_url + '" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid rgba(255,255,255,0.2);margin-bottom:16px;position:relative;z-index:1;">'
+          : '<div class="modal-icon">' + icon + '</div>'
+        }
+        <h2 style="position:relative;z-index:1;">${business.name}</h2>
+        <span class="modal-industry" style="position:relative;z-index:1;">${business.industry}</span>
       </div>
       <div class="modal-body">
         <div class="modal-info-row">
