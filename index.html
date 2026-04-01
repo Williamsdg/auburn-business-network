@@ -683,20 +683,16 @@
       btn.textContent = 'Subscribing...';
 
       try {
-        const { error } = await db.from('subscribers').insert([{ email, sports }]);
-        if (error) {
-          if (error.code === '23505') {
-            // Duplicate email — update their sports
-            await db.from('subscribers').update({ sports }).eq('email', email);
-          } else {
-            throw error;
-          }
-        }
+        const { data, error } = await db.from('subscribers').upsert(
+          { email: email, sports: sports },
+          { onConflict: 'email' }
+        );
+        if (error) throw error;
         document.getElementById('subscribe-form').style.display = 'none';
         document.getElementById('sub-success').style.display = 'block';
       } catch (err) {
-        console.error(err);
-        alert('Something went wrong. Please try again.');
+        console.error('Subscribe error:', err);
+        alert('Something went wrong: ' + (err.message || JSON.stringify(err)));
         btn.disabled = false;
         btn.textContent = 'War Eagle — Subscribe';
       }
