@@ -121,6 +121,7 @@ CREATE TABLE travel_subscriptions (
   state TEXT NOT NULL,
   city TEXT,
   services TEXT[] NOT NULL DEFAULT '{}',
+  sports TEXT[] NOT NULL DEFAULT '{}',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

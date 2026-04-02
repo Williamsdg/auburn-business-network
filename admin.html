@@ -333,6 +333,7 @@
                   <th>State</th>
                   <th>City</th>
                   <th>Services</th>
+                  <th>Sports / Reason</th>
                   <th>Date</th>
                   <th>Actions</th>
                 </tr>
@@ -689,7 +690,7 @@
     function renderSubscribers() {
       const tbody = document.getElementById('subscribers-body');
       if (_subscribers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#6c757d;padding:40px;">No travel subscribers yet</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;">No travel subscribers yet</td></tr>';
         return;
       }
       tbody.innerHTML = _subscribers.map(sub => `
@@ -698,6 +699,7 @@
           <td>${sub.state}</td>
           <td>${sub.city || '—'}</td>
           <td>${(sub.services || []).join(', ')}</td>
+          <td>${(sub.sports || []).join(', ') || '—'}</td>
           <td>${new Date(sub.created_at).toLocaleDateString()}</td>
           <td>
             <div class="action-btns">

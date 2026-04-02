@@ -91,10 +91,10 @@ async function submitApplication(formData) {
 }
 
 // Submit a travel alert subscription
-async function submitTravelSubscription({ email, state, city, services }) {
+async function submitTravelSubscription({ email, state, city, services, sports }) {
   const { data, error } = await db
     .from('travel_subscriptions')
-    .insert([{ email, state, city: city || null, services }]);
+    .insert([{ email, state, city: city || null, services, sports: sports || [] }]);
 
   if (error) throw error;
   return data;
