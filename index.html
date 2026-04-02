@@ -662,9 +662,9 @@
             </div>
           </div>
           <!-- Form Card -->
-          <div style="background:linear-gradient(160deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:28px;flex:1;">
+          <div style="background:linear-gradient(160deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:28px;flex:1;display:flex;flex-direction:column;">
 
-          <form id="subscribe-form" onsubmit="return handleSubscribe(event)">
+          <form id="subscribe-form" onsubmit="return handleSubscribe(event)" style="display:flex;flex-direction:column;flex:1;">
             <div style="margin-bottom:18px;">
               <label style="display:block;font-size:0.7rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Email</label>
               <input type="email" id="sub-email" required placeholder="you@email.com" style="width:100%;padding:12px 14px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#fff;font-size:0.9rem;outline:none;font-family:inherit;transition:0.25s ease;" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
@@ -704,7 +704,7 @@
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" id="sub-btn" style="width:100%;padding:14px;font-size:0.95rem;justify-content:center;">War Eagle — Subscribe</button>
+            <button type="submit" class="btn btn-primary" id="sub-btn" style="width:100%;padding:14px;font-size:0.95rem;justify-content:center;margin-top:auto;">War Eagle — Subscribe</button>
           </form>
 
           <div id="sub-success" style="display:none;text-align:center;padding:20px 0;">
@@ -735,9 +735,9 @@
             </div>
           </div>
           <!-- Form Card -->
-          <div style="background:linear-gradient(160deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:28px;flex:1;">
+          <div style="background:linear-gradient(160deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:28px;flex:1;display:flex;flex-direction:column;">
 
-          <form id="travel-form" onsubmit="handleTravelSubscribe(event)">
+          <form id="travel-form" onsubmit="handleTravelSubscribe(event)" style="display:flex;flex-direction:column;flex:1;">
             <div style="margin-bottom:18px;">
               <label style="display:block;font-size:0.7rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Email</label>
               <input type="email" id="travel-email" required placeholder="you@email.com" style="width:100%;padding:12px 14px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#fff;font-size:0.9rem;outline:none;font-family:inherit;transition:0.25s ease;" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
@@ -778,7 +778,7 @@
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" id="travel-submit-btn" style="width:100%;padding:14px;font-size:0.95rem;justify-content:center;">Subscribe to Travel Alerts</button>
+            <button type="submit" class="btn btn-primary" id="travel-submit-btn" style="width:100%;padding:14px;font-size:0.95rem;justify-content:center;margin-top:auto;">Subscribe to Travel Alerts</button>
           </form>
 
           <div id="travel-success" style="display:none;text-align:center;padding:20px 0;">
