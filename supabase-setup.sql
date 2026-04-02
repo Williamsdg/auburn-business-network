@@ -145,3 +145,9 @@ CREATE POLICY "Admin can delete travel subscriptions"
   ON travel_subscriptions FOR DELETE
   TO authenticated
   USING (true);
+
+-- Anyone can unsubscribe themselves (delete by email)
+CREATE POLICY "Anyone can unsubscribe from travel alerts"
+  ON travel_subscriptions FOR DELETE
+  TO anon
+  USING (true);
