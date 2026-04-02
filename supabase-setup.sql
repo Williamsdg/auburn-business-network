@@ -113,3 +113,34 @@ INSERT INTO businesses (name, industry, address, location, website, bio, owner, 
 ('Heisman Accounting', 'Financial Services', '604 Ave A, Opelika, AL 36801', 'Opelika, AL', 'https://heismanaccounting.com', 'CPA firm providing tax preparation, bookkeeping, and business advisory services. Auburn accounting grad helping individuals and small businesses win with their finances.', 'Jennifer Owens', 'taxes@heismanaccounting.com', '(334) 555-1244', 'active', 'paid'),
 ('Plains Landscaping', 'Home Services', '2200 Wire Rd, Auburn, AL 36832', 'Auburn, AL', 'https://plainslandscaping.com', 'Professional landscaping, lawn care, and outdoor living design. We bring the beauty of the Auburn campus to your backyard. Serving Auburn-Opelika since 2015.', 'Brian Wells', 'yards@plainslandscaping.com', '(334) 555-1355', 'active', 'paid'),
 ('War Eagle Insurance', 'Insurance', '305 Gay St, Auburn, AL 36830', 'Auburn, AL', 'https://wareagleinsurance.com', 'Independent insurance agency offering home, auto, life, and business coverage. Auburn ''07 grad providing personalized insurance solutions for Lee County families and businesses.', 'Patrick Simmons', 'protect@wareagleinsurance.com', '(334) 555-1466', 'active', 'paid');
+
+-- 6. Create travel_subscriptions table
+CREATE TABLE travel_subscriptions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email TEXT NOT NULL,
+  state TEXT NOT NULL,
+  city TEXT,
+  services TEXT[] NOT NULL DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE travel_subscriptions ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can subscribe (INSERT)
+CREATE POLICY "Anyone can subscribe to travel alerts"
+  ON travel_subscriptions FOR INSERT
+  TO anon
+  WITH CHECK (true);
+
+-- Only authenticated (admin) can view subscriptions
+CREATE POLICY "Admin can view travel subscriptions"
+  ON travel_subscriptions FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- Only authenticated (admin) can delete subscriptions
+CREATE POLICY "Admin can delete travel subscriptions"
+  ON travel_subscriptions FOR DELETE
+  TO authenticated
+  USING (true);

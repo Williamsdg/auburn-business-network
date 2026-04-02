@@ -90,6 +90,16 @@ async function submitApplication(formData) {
   return data;
 }
 
+// Submit a travel alert subscription
+async function submitTravelSubscription({ email, state, city, services }) {
+  const { data, error } = await db
+    .from('travel_subscriptions')
+    .insert([{ email, state, city: city || null, services }]);
+
+  if (error) throw error;
+  return data;
+}
+
 // ---- Admin functions (require auth) ----
 
 // Sign in admin
@@ -174,6 +184,28 @@ async function approveAndCreateBusiness(application) {
       facebook: application.facebook || null,
       tiktok: application.tiktok || null
     }]);
+
+  if (error) throw error;
+  return data;
+}
+
+// Fetch all travel subscriptions (admin only)
+async function loadTravelSubscriptions() {
+  const { data, error } = await db
+    .from('travel_subscriptions')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+// Delete a travel subscription (admin only)
+async function deleteTravelSubscription(id) {
+  const { data, error } = await db
+    .from('travel_subscriptions')
+    .delete()
+    .eq('id', id);
 
   if (error) throw error;
   return data;

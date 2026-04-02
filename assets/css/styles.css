@@ -1062,7 +1062,7 @@ h4 { font-size: 1.1rem; font-weight: 600; }
 
 .admin-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 20px;
   margin-bottom: 32px;
 }
@@ -1279,6 +1279,147 @@ h4 { font-size: 1.1rem; font-weight: 600; }
   display: none;
 }
 
+/* --- Travel Alerts --- */
+.travel-alerts {
+  padding: 80px 0;
+  background: var(--white);
+}
+
+.travel-form-card {
+  max-width: 720px;
+  margin: 0 auto;
+  background: var(--off-white);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  border: 1px solid var(--light-gray);
+  box-shadow: var(--shadow-md);
+}
+
+.travel-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.travel-form-card .form-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.travel-form-card .form-group label .required {
+  color: var(--orange);
+}
+
+.travel-form-card .form-group label .optional {
+  color: var(--mid-gray);
+  font-weight: 400;
+  font-size: 0.8rem;
+}
+
+.travel-form-card .form-group input,
+.travel-form-card .form-group select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--light-gray);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  color: var(--text);
+  outline: none;
+  transition: var(--transition);
+  background: var(--white);
+}
+
+.travel-form-card .form-group input:focus,
+.travel-form-card .form-group select:focus {
+  border-color: var(--orange);
+}
+
+.services-section {
+  margin-bottom: 24px;
+}
+
+.services-section > label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.service-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--white);
+  border: 2px solid var(--light-gray);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.85rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.service-check:hover {
+  border-color: var(--orange);
+}
+
+.service-check input {
+  accent-color: var(--orange);
+}
+
+.service-check input:checked + span {
+  color: var(--navy);
+  font-weight: 600;
+}
+
+.travel-form-submit {
+  text-align: center;
+}
+
+.travel-form-submit .btn {
+  min-width: 260px;
+}
+
+.travel-success {
+  display: none;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.success-icon-sm {
+  width: 56px;
+  height: 56px;
+  background: #28a745;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: var(--white);
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.travel-success h3 {
+  margin-bottom: 8px;
+}
+
+.travel-success p {
+  color: var(--mid-gray);
+}
+
 /* --- Footer --- */
 .footer {
   background: var(--navy);
@@ -1356,6 +1497,18 @@ h4 { font-size: 1.1rem; font-weight: 600; }
 
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .travel-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .travel-form-card {
+    padding: 24px;
   }
 
   .admin-table-wrapper {

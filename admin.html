@@ -289,11 +289,16 @@
             <div class="stat-number" id="stat-industries">0</div>
             <div class="stat-label">Industries</div>
           </div>
+          <div class="stat-card">
+            <div class="stat-number" id="stat-subscribers">0</div>
+            <div class="stat-label">Travel Subscribers</div>
+          </div>
         </div>
 
         <div class="admin-tabs">
           <button class="admin-tab active" onclick="switchTab('applications', this)">Applications</button>
           <button class="admin-tab" onclick="switchTab('businesses', this)">Businesses</button>
+          <button class="admin-tab" onclick="switchTab('subscribers', this)">Travel Subscribers</button>
         </div>
 
         <div id="tab-applications">
@@ -314,6 +319,25 @@
                 </tr>
               </thead>
               <tbody id="businesses-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Travel Subscribers Table -->
+        <div id="tab-subscribers" style="display:none;">
+          <div class="admin-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>State</th>
+                  <th>City</th>
+                  <th>Services</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="subscribers-body"></tbody>
             </table>
           </div>
         </div>
@@ -364,6 +388,7 @@
 
     let _applications = [];
     let _allBusinesses = [];
+    let _subscribers = [];
 
     async function handleLogin(e) {
       e.preventDefault();
@@ -444,9 +469,11 @@
     async function refreshData() {
       _applications = await loadApplications();
       _allBusinesses = await loadAllBusinesses();
+      try { _subscribers = await loadTravelSubscriptions(); } catch(e) { _subscribers = []; }
       renderStats();
       renderApplications();
       renderBusinesses();
+      renderSubscribers();
     }
 
     function renderStats() {
@@ -455,6 +482,7 @@
       const live = _allBusinesses.filter(b => b.payment_status === 'paid' || b.payment_status === 'waived').length;
       document.getElementById('stat-locations').textContent = live;
       document.getElementById('stat-industries').textContent = [...new Set(_allBusinesses.map(b => b.industry))].length;
+      document.getElementById('stat-subscribers').textContent = _subscribers.length;
     }
 
     function renderApplications() {
@@ -658,11 +686,45 @@
       }
     }
 
+    function renderSubscribers() {
+      const tbody = document.getElementById('subscribers-body');
+      if (_subscribers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#6c757d;padding:40px;">No travel subscribers yet</td></tr>';
+        return;
+      }
+      tbody.innerHTML = _subscribers.map(sub => `
+        <tr>
+          <td><strong>${sub.email}</strong></td>
+          <td>${sub.state}</td>
+          <td>${sub.city || '—'}</td>
+          <td>${(sub.services || []).join(', ')}</td>
+          <td>${new Date(sub.created_at).toLocaleDateString()}</td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn reject" onclick="removeSub('${sub.id}')">Remove</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function removeSub(id) {
+      if (!confirm('Remove this subscriber?')) return;
+      try {
+        await deleteTravelSubscription(id);
+        await refreshData();
+      } catch (err) {
+        console.error(err);
+        alert('Error removing subscriber.');
+      }
+    }
+
     function switchTab(tab, btn) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('tab-applications').style.display = tab === 'applications' ? '' : 'none';
       document.getElementById('tab-businesses').style.display = tab === 'businesses' ? '' : 'none';
+      document.getElementById('tab-subscribers').style.display = tab === 'subscribers' ? '' : 'none';
     }
 
     document.addEventListener('DOMContentLoaded', async () => {

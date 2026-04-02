@@ -730,6 +730,48 @@
     </div>
   </section>
 
+  <!-- Travel Alerts -->
+  <section class="travel-alerts">
+    <div class="container">
+      <div class="section-header">
+        <h2>Traveling Soon?</h2>
+        <p>Get notified about Auburn-owned businesses wherever you're headed</p>
+      </div>
+      <div class="travel-form-card" id="travel-form-card">
+        <form id="travel-form" onsubmit="handleTravelSubscribe(event)">
+          <div class="travel-form-grid">
+            <div class="form-group">
+              <label for="travel-email">Email <span class="required">*</span></label>
+              <input type="email" id="travel-email" placeholder="you@email.com" required>
+            </div>
+            <div class="form-group">
+              <label for="travel-state">State <span class="required">*</span></label>
+              <select id="travel-state" required>
+                <option value="">Select a state</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="travel-city">City <span class="optional">(optional)</span></label>
+              <input type="text" id="travel-city" placeholder="e.g. Nashville">
+            </div>
+          </div>
+          <div class="services-section">
+            <label>What are you looking for?</label>
+            <div class="services-grid" id="services-grid"></div>
+          </div>
+          <div class="travel-form-submit">
+            <button type="submit" class="btn btn-primary" id="travel-submit-btn">Subscribe to Travel Alerts</button>
+          </div>
+        </form>
+        <div class="travel-success" id="travel-success">
+          <div class="success-icon-sm">&#10003;</div>
+          <h3>You're all set!</h3>
+          <p>We'll email you Auburn-owned businesses for your trip.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
@@ -755,6 +797,72 @@
       const grid = document.getElementById('featured-grid');
       grid.innerHTML = featured.map(b => createBusinessCard(b)).join('');
     });
+
+    // Populate travel alerts form
+    function initTravelForm() {
+      const states = [
+        'Alabama','Alaska','Arizona','Arkansas','California','Colorado',
+        'Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho',
+        'Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana',
+        'Maine','Maryland','Massachusetts','Michigan','Minnesota',
+        'Mississippi','Missouri','Montana','Nebraska','Nevada',
+        'New Hampshire','New Jersey','New Mexico','New York',
+        'North Carolina','North Dakota','Ohio','Oklahoma','Oregon',
+        'Pennsylvania','Rhode Island','South Carolina','South Dakota',
+        'Tennessee','Texas','Utah','Vermont','Virginia','Washington',
+        'West Virginia','Wisconsin','Wyoming'
+      ];
+      const stateSelect = document.getElementById('travel-state');
+      states.forEach(s => {
+        stateSelect.innerHTML += `<option value="${s}">${s}</option>`;
+      });
+
+      const serviceTypes = [
+        'Restaurant & Bar','Food & Beverage','Home Services','Healthcare',
+        'Real Estate','Automotive','Technology','Retail','Health & Fitness',
+        'Financial Services','Legal','Entertainment','Professional Services'
+      ];
+      const grid = document.getElementById('services-grid');
+      serviceTypes.forEach(s => {
+        grid.innerHTML += `
+          <label class="service-check">
+            <input type="checkbox" name="services" value="${s}">
+            <span>${s}</span>
+          </label>`;
+      });
+    }
+    initTravelForm();
+
+    async function handleTravelSubscribe(e) {
+      e.preventDefault();
+      const btn = document.getElementById('travel-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Subscribing...';
+
+      const email = document.getElementById('travel-email').value.trim();
+      const state = document.getElementById('travel-state').value;
+      const city = document.getElementById('travel-city').value.trim();
+      const checked = document.querySelectorAll('#services-grid input:checked');
+      const services = Array.from(checked).map(c => c.value);
+
+      if (services.length === 0) {
+        alert('Please select at least one service type.');
+        btn.disabled = false;
+        btn.textContent = 'Subscribe to Travel Alerts';
+        return;
+      }
+
+      try {
+        await submitTravelSubscription({ email, state, city, services });
+        document.getElementById('travel-form').style.display = 'none';
+        document.getElementById('travel-success').style.display = 'block';
+      } catch (err) {
+        console.error('Subscription error:', err);
+        alert('Something went wrong. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Subscribe to Travel Alerts';
+      }
+    }
 
     function heroSearch() {
       const industry = document.getElementById('hero-industry').value;
