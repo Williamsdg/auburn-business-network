@@ -620,9 +620,30 @@
         await approveAndCreateBusiness(app);
 
         if (paymentLink && !paymentLink.startsWith('STRIPE_LINK')) {
-          // Copy payment link to clipboard
-          try { await navigator.clipboard.writeText(paymentLink); } catch(e) {}
-          alert(app.business_name + ' approved at ' + priceLabel + '!\n\nPayment link copied to clipboard. Send it to ' + app.email);
+          // Send approval email with payment link
+          try {
+            const emailRes = await fetch('/api/send-approval', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                businessName: app.business_name,
+                ownerName: app.owner_name,
+                email: app.email,
+                paymentLink: paymentLink,
+                priceLabel: priceLabel
+              })
+            });
+            if (emailRes.ok) {
+              alert(app.business_name + ' approved at ' + priceLabel + '!\n\nApproval email with payment link sent to ' + app.email);
+            } else {
+              // Fallback: copy to clipboard
+              try { await navigator.clipboard.writeText(paymentLink); } catch(e) {}
+              alert(app.business_name + ' approved at ' + priceLabel + '!\n\nEmail failed to send. Payment link copied to clipboard — send it manually to ' + app.email);
+            }
+          } catch(e) {
+            try { await navigator.clipboard.writeText(paymentLink); } catch(e2) {}
+            alert(app.business_name + ' approved at ' + priceLabel + '!\n\nEmail failed to send. Payment link copied to clipboard — send it manually to ' + app.email);
+          }
         } else {
           alert(app.business_name + ' approved at ' + priceLabel + '!\n\nStripe link not set yet for this tier. Update PRICING_LINKS in admin.html.');
         }
