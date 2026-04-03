@@ -83,7 +83,8 @@ async function submitApplication(formData) {
       instagram: formData.instagram || null,
       twitter: formData.twitter || null,
       facebook: formData.facebook || null,
-      tiktok: formData.tiktok || null
+      tiktok: formData.tiktok || null,
+      business_type: formData.businessType || 'local'
     }]);
 
   if (error) throw error;

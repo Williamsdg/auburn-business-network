@@ -281,7 +281,29 @@
       <!-- Pricing Note -->
       <div class="pricing-note">
         <h4>Annual Listing Fee: $300/year</h4>
-        <p>After your application is reviewed and approved, we'll create your account and send an invoice. Your listing goes live once payment is received.</p>
+        <p>After your application is reviewed and approved, you'll receive a link to complete payment. Your listing goes live once payment is received.</p>
+        <p style="margin-top:8px;"><a href="https://buy.stripe.com/4gM5kF9ZpdTafN9gU39bO00" target="_blank" style="color:var(--orange);font-weight:600;">Pay now via Stripe &rarr;</a></p>
+      </div>
+
+      <!-- Business Type -->
+      <div class="form-section">
+        <h3>Business Type</h3>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:10px;padding:14px 20px;background:rgba(242,101,34,0.08);border:2px solid var(--orange);border-radius:var(--radius);cursor:pointer;flex:1;min-width:200px;transition:0.25s ease;" id="type-local-label">
+            <input type="radio" name="businessType" value="local" checked onchange="toggleBusinessType()" style="accent-color:var(--orange);width:18px;height:18px;">
+            <div>
+              <strong style="color:var(--white);font-size:0.95rem;">Physical Location</strong>
+              <p style="color:rgba(255,255,255,0.4);font-size:0.78rem;margin:2px 0 0;">Storefront, office, or service area</p>
+            </div>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:14px 20px;background:rgba(255,255,255,0.02);border:2px solid rgba(255,255,255,0.08);border-radius:var(--radius);cursor:pointer;flex:1;min-width:200px;transition:0.25s ease;" id="type-online-label">
+            <input type="radio" name="businessType" value="online" onchange="toggleBusinessType()" style="accent-color:var(--orange);width:18px;height:18px;">
+            <div>
+              <strong style="color:var(--white);font-size:0.95rem;">Online / E-Commerce</strong>
+              <p style="color:rgba(255,255,255,0.4);font-size:0.78rem;margin:2px 0 0;">Online store or digital platform</p>
+            </div>
+          </label>
+        </div>
       </div>
 
       <!-- Business Info -->
@@ -299,6 +321,7 @@
               <option value="Automotive">Automotive</option>
               <option value="Construction">Construction</option>
               <option value="Creative Services">Creative Services</option>
+              <option value="E-Commerce">E-Commerce</option>
               <option value="Financial Services">Financial Services</option>
               <option value="Food & Beverage">Food & Beverage</option>
               <option value="Health & Fitness">Health & Fitness</option>
@@ -312,12 +335,12 @@
               <option value="Other">Other</option>
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-group" id="city-group">
             <label>City <span class="required">*</span></label>
             <input type="text" name="city" required placeholder="e.g. Auburn">
           </div>
         </div>
-        <div class="form-row">
+        <div class="form-row" id="location-row">
           <div class="form-group">
             <label>State <span class="required">*</span></label>
             <input type="text" name="state" required placeholder="e.g. AL" maxlength="2" style="text-transform:uppercase;">
@@ -428,8 +451,10 @@
       <div class="success-icon">&#10003;</div>
       <h2>Application Submitted!</h2>
       <p>Thank you for your interest in the Auburn Business Network. We'll review your application and be in touch soon. War Eagle!</p>
-      <div style="margin-top:24px;">
-        <a href="index.html" class="btn btn-primary">Back to Home</a>
+      <p style="color:rgba(255,255,255,0.5);font-size:0.88rem;margin-top:16px;">Ready to pay now? You can complete payment ahead of approval:</p>
+      <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="https://buy.stripe.com/4gM5kF9ZpdTafN9gU39bO00" target="_blank" class="btn btn-primary">Pay $300/year via Stripe</a>
+        <a href="index.html" class="btn btn-outline">Back to Home</a>
       </div>
     </div>
   </div>
@@ -449,6 +474,35 @@
   <script src="assets/js/data.js"></script>
   <script src="assets/js/main.js"></script>
   <script>
+    function toggleBusinessType() {
+      const isOnline = document.querySelector('input[name="businessType"]:checked').value === 'online';
+      const locationRow = document.getElementById('location-row');
+      const cityGroup = document.getElementById('city-group');
+      const localLabel = document.getElementById('type-local-label');
+      const onlineLabel = document.getElementById('type-online-label');
+
+      if (isOnline) {
+        locationRow.style.display = 'none';
+        cityGroup.style.display = 'none';
+        locationRow.querySelectorAll('input').forEach(i => { i.required = false; i.value = ''; });
+        cityGroup.querySelector('input').required = false;
+        cityGroup.querySelector('input').value = '';
+        onlineLabel.style.borderColor = 'var(--orange)';
+        onlineLabel.style.background = 'rgba(242,101,34,0.08)';
+        localLabel.style.borderColor = 'rgba(255,255,255,0.08)';
+        localLabel.style.background = 'rgba(255,255,255,0.02)';
+      } else {
+        locationRow.style.display = '';
+        cityGroup.style.display = '';
+        locationRow.querySelectorAll('input').forEach(i => i.required = true);
+        cityGroup.querySelector('input').required = true;
+        localLabel.style.borderColor = 'var(--orange)';
+        localLabel.style.background = 'rgba(242,101,34,0.08)';
+        onlineLabel.style.borderColor = 'rgba(255,255,255,0.08)';
+        onlineLabel.style.background = 'rgba(255,255,255,0.02)';
+      }
+    }
+
     function previewLogo(input) {
       const file = input.files[0];
       if (!file) return;
@@ -512,13 +566,16 @@
           logoUrl = await uploadLogo(logoFile);
         }
 
+        const isOnline = formData.get('businessType') === 'online';
+
         submitBtn.textContent = 'Submitting application...';
         await submitApplication({
           businessName: formData.get('businessName'),
           industry: formData.get('industry'),
-          city: formData.get('city'),
-          state: formData.get('state').toUpperCase(),
-          address: formData.get('address'),
+          city: isOnline ? 'Online' : formData.get('city'),
+          state: isOnline ? 'N/A' : formData.get('state').toUpperCase(),
+          address: isOnline ? 'Online Business' : formData.get('address'),
+          businessType: formData.get('businessType'),
           website: website || null,
           bio: formData.get('bio'),
           ownerName: formData.get('ownerName'),
