@@ -212,6 +212,17 @@ async function deleteTravelSubscription(id) {
   return data;
 }
 
+// Delete a business (admin only)
+async function deleteBusiness(id) {
+  const { data, error } = await db
+    .from('businesses')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
+  return data;
+}
+
 // Update business payment status
 async function updateBusinessPayment(id, paymentStatus) {
   const { data, error } = await db

@@ -573,6 +573,7 @@
                 <button class="action-btn approve" onclick="markPaid('${b.id}')">Mark Paid</button>
                 <button class="action-btn waive-biz" onclick="waivePayment('${b.id}')">Waive</button>
               ` : ''}
+              <button class="action-btn reject" onclick="removeBusiness('${b.id}', '${b.name.replace(/'/g, "\\'")}')">Remove</button>
             </div>
           </td>
         </tr>
@@ -684,6 +685,18 @@
       } catch (err) {
         console.error(err);
         alert('Error waiving payment.');
+      }
+    }
+
+    async function removeBusiness(id, name) {
+      if (!confirm('Remove "' + name + '" from the directory? This cannot be undone.')) return;
+      try {
+        await deleteBusiness(id);
+        alert(name + ' has been removed from the directory.');
+        await refreshData();
+      } catch (err) {
+        console.error(err);
+        alert('Error removing business.');
       }
     }
 
