@@ -759,6 +759,30 @@
           tiktok: formData.get('tiktok')?.trim() || null
         });
 
+        // Notify admins (fire and forget — don't block the success)
+        fetch('/api/notify-application', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            businessName: formData.get('businessName'),
+            industry: formData.get('industry'),
+            businessType: formData.get('businessType'),
+            city: isOnline ? 'Online' : formData.get('city'),
+            state: isOnline ? 'N/A' : formData.get('state'),
+            address: isOnline ? 'Online Business' : formData.get('address'),
+            website: website || null,
+            bio: formData.get('bio'),
+            ownerName: formData.get('ownerName'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            auburnConnection: formData.get('auburnConnection'),
+            instagram: formData.get('instagram')?.trim() || null,
+            twitter: formData.get('twitter')?.trim() || null,
+            facebook: formData.get('facebook')?.trim() || null,
+            tiktok: formData.get('tiktok')?.trim() || null
+          })
+        }).catch(err => console.error('Notify error:', err));
+
         const submittedEmail = formData.get('email');
         form.style.display = 'none';
         success.classList.add('active');
