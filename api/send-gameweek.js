@@ -64,9 +64,7 @@ function buildGameEmailHtml(game, businesses) {
 <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
 
 <tr><td style="background:linear-gradient(135deg,#03244d,#0a3a6b);padding:36px;border-radius:14px 14px 0 0;text-align:center;">
-  <div style="width:48px;height:48px;background:#F26522;border-radius:50%;display:inline-block;text-align:center;line-height:48px;margin-bottom:14px;">
-    <span style="color:#fff;font-weight:800;font-size:16px;">AB</span>
-  </div>
+  <img src="https://buyauburn.com/assets/images/email-logo-wide.png" alt="Buy Auburn" width="180" style="width:180px;height:auto;border-radius:8px;margin-bottom:14px;">
   <p style="color:rgba(255,255,255,0.4);font-size:11px;text-transform:uppercase;letter-spacing:2px;margin:0 0 6px;">GAME WEEK</p>
   <h1 style="color:#fff;font-size:24px;margin:0 0 4px;font-weight:800;">Auburn vs ${game.opponent}</h1>
   <p style="color:#F26522;font-size:14px;margin:0;font-weight:600;">${game.sport}</p>

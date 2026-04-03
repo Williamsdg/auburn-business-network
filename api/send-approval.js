@@ -16,9 +16,7 @@ export default async function handler(req, res) {
 
 <!-- Header -->
 <tr><td style="background:linear-gradient(135deg,#03244d,#0a3a6b);padding:40px 36px;border-radius:14px 14px 0 0;text-align:center;">
-  <div style="width:52px;height:52px;background:#F26522;border-radius:50%;display:inline-block;text-align:center;line-height:52px;margin-bottom:16px;">
-    <span style="color:#fff;font-weight:800;font-size:18px;">AB</span>
-  </div>
+  <img src="https://buyauburn.com/assets/images/email-logo-wide.png" alt="Buy Auburn" width="180" style="width:180px;height:auto;border-radius:8px;margin-bottom:16px;">
   <h1 style="color:#fff;font-size:26px;margin:0 0 6px;font-weight:800;">You're Approved!</h1>
   <p style="color:#F26522;font-size:14px;margin:0;font-weight:600;letter-spacing:2px;">WAR EAGLE</p>
 </td></tr>

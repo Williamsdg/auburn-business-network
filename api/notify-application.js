@@ -30,9 +30,7 @@ export default async function handler(req, res) {
 
 <!-- Header -->
 <tr><td style="background:linear-gradient(135deg,#03244d,#0a3a6b);padding:32px 36px;border-radius:14px 14px 0 0;text-align:center;">
-  <div style="width:48px;height:48px;background:#F26522;border-radius:50%;display:inline-block;text-align:center;line-height:48px;margin-bottom:12px;">
-    <span style="color:#fff;font-weight:800;font-size:16px;">AB</span>
-  </div>
+  <img src="https://buyauburn.com/assets/images/email-logo-wide.png" alt="Buy Auburn" width="180" style="width:180px;height:auto;border-radius:8px;margin-bottom:12px;">
   <h1 style="color:#fff;font-size:22px;margin:0 0 4px;font-weight:800;">New Business Application</h1>
   <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">A new business wants to join the Auburn Business Network</p>
 </td></tr>
