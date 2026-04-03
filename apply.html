@@ -80,7 +80,13 @@
     }
     .navbar .container { display: flex; align-items: center; justify-content: space-between; height: 70px; }
     .nav-brand { display: flex; align-items: center; gap: 12px; color: var(--white); font-weight: 700; font-size: 1.2rem; }
-    .nav-brand .brand-icon { width: 40px; height: 40px; background: var(--orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; }
+    .logo-mark { display: flex; align-items: baseline; gap: 8px; position: relative; padding-bottom: 4px; }
+    .logo-buy { font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; line-height: 1; background: linear-gradient(90deg, #fff 40%, rgba(242,101,34,0.6) 50%, #fff 60%); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: logo-shimmer 4s ease-in-out infinite; }
+    .logo-auburn { font-size: 1.5rem; font-weight: 900; color: var(--orange); letter-spacing: 2px; line-height: 1; }
+    .logo-line { position: absolute; bottom: -2px; left: 0; height: 3px; width: 0; border-radius: 2px; background: linear-gradient(90deg, var(--orange), var(--orange-hover)); transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+    .nav-brand:hover .logo-line { width: 100%; }
+    .nav-brand:hover .logo-auburn { text-shadow: 0 0 20px rgba(242,101,34,0.4); transition: text-shadow 0.3s ease; }
+    @keyframes logo-shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
     .nav-links { display: flex; align-items: center; gap: 8px; list-style: none; }
     .nav-links a { color: rgba(255,255,255,0.7); padding: 8px 16px; border-radius: var(--radius); font-size: 0.95rem; font-weight: 500; transition: var(--transition); }
     .nav-links a:hover, .nav-links a.active { color: var(--white); background: rgba(255,255,255,0.1); }
@@ -277,7 +283,11 @@
   <nav class="navbar">
     <div class="container">
       <a href="index.html" class="nav-brand">
-        <img src="assets/images/email-logo-wide.png" alt="Buy Auburn" style="height:38px;border-radius:6px;">
+        <div class="logo-mark">
+          <span class="logo-buy">BUY</span>
+          <span class="logo-auburn">AUBURN</span>
+          <span class="logo-line"></span>
+        </div>
       </a>
       <button class="nav-toggle" aria-label="Toggle navigation">
         <span></span><span></span><span></span>
