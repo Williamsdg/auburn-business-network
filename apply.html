@@ -514,6 +514,14 @@
           </div>
         </div>
         <div class="form-group">
+          <label>Confirm Email <span class="required">*</span></label>
+          <input type="email" name="confirmEmail" required placeholder="Re-enter your email">
+        </div>
+        <!-- Honeypot - hidden from humans, bots fill it -->
+        <div style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
+          <input type="text" name="website_url" tabindex="-1" autocomplete="off">
+        </div>
+        <div class="form-group">
           <label>Phone Number <span class="required">*</span></label>
           <input type="tel" name="phone" required placeholder="(555) 555-0000">
           <label style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer;font-size:0.82rem;color:rgba(255,255,255,0.5);font-weight:400;">
@@ -754,6 +762,25 @@
 
       try {
         const formData = new FormData(form);
+
+        // Honeypot check
+        if (formData.get('website_url')) {
+          // Bot detected — silently show success to not tip off
+          form.style.display = 'none';
+          success.classList.add('active');
+          return false;
+        }
+
+        // Email confirmation check
+        const email = formData.get('email')?.trim().toLowerCase();
+        const confirmEmail = formData.get('confirmEmail')?.trim().toLowerCase();
+        if (email !== confirmEmail) {
+          alert('Email addresses do not match. Please check and try again.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Application — Free to Apply';
+          return false;
+        }
+
         let website = formData.get('website')?.trim() || '';
         if (website && !website.startsWith('http')) website = 'https://' + website;
 
@@ -768,28 +795,39 @@
         const isOnline = formData.get('businessType') === 'online';
 
         submitBtn.textContent = 'Submitting application...';
-        await submitApplication({
-          businessName: formData.get('businessName'),
+        const appData = {
+          business_name: formData.get('businessName'),
           industry: formData.get('industry'),
           city: isOnline ? 'Online' : formData.get('city'),
           state: isOnline ? 'N/A' : formData.get('state'),
           address: isOnline ? 'Online Business' : formData.get('address'),
-          businessType: formData.get('businessType'),
+          business_type: formData.get('businessType'),
           website: website || null,
           bio: formData.get('bio'),
-          ownerName: formData.get('ownerName'),
+          owner_name: formData.get('ownerName'),
           email: formData.get('email'),
           phone: formData.get('phone'),
-          showPhone: formData.get('showPhone') === 'on',
-          auburnConnection: formData.get('auburnConnection'),
-          referralName: formData.get('referralName')?.trim() || null,
-          referralCode: formData.get('referralCode')?.trim() || null,
-          logoUrl: logoUrl,
+          show_phone: formData.get('showPhone') === 'on',
+          auburn_connection: formData.get('auburnConnection'),
+          referral_name: formData.get('referralName')?.trim() || null,
+          referral_code: formData.get('referralCode')?.trim() || null,
+          logo_url: logoUrl,
           instagram: formData.get('instagram')?.trim() || null,
           twitter: formData.get('twitter')?.trim() || null,
           facebook: formData.get('facebook')?.trim() || null,
           tiktok: formData.get('tiktok')?.trim() || null
+        };
+
+        const appRes = await fetch('/api/submit-application', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(appData)
         });
+
+        if (!appRes.ok) {
+          const err = await appRes.json();
+          throw new Error(err.error || 'Submission failed');
+        }
 
         // Notify admins (fire and forget — don't block the success)
         fetch('/api/notify-application', {
