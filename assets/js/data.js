@@ -86,7 +86,8 @@ async function submitApplication(formData) {
       tiktok: formData.tiktok || null,
       business_type: formData.businessType || 'local',
       referral_name: formData.referralName || null,
-      referral_code: formData.referralCode || null
+      referral_code: formData.referralCode || null,
+      show_phone: formData.showPhone !== false
     }]);
 
   if (error) throw error;
@@ -177,7 +178,7 @@ async function approveAndCreateBusiness(application) {
       bio: application.bio,
       owner: application.owner_name,
       contact: application.email,
-      phone: application.phone,
+      phone: application.show_phone !== false ? application.phone : null,
       status: 'active',
       payment_status: 'unpaid',
       application_id: application.id,
