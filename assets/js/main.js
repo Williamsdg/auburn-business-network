@@ -2,6 +2,14 @@
    Auburn Business Network - Shared Utilities
    ============================================ */
 
+// Escape HTML to prevent XSS
+function esc(str) {
+  if (!str) return '';
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
 // SVG Icons used throughout the site
 const ICONS = {
   location: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
@@ -150,13 +158,13 @@ function createBusinessCard(business) {
   const contactActions = [];
 
   if (business.phone) {
-    contactActions.push(`<a href="tel:${business.phone}" class="contact-action" title="Call" onclick="event.stopPropagation()">${ICONS.phone}</a>`);
+    contactActions.push(`<a href="tel:${esc(business.phone)}" class="contact-action" title="Call" onclick="event.stopPropagation()">${ICONS.phone}</a>`);
   }
   if (business.contact) {
-    contactActions.push(`<a href="mailto:${business.contact}" class="contact-action" title="Email" onclick="event.stopPropagation()">${ICONS.email}</a>`);
+    contactActions.push(`<a href="mailto:${esc(business.contact)}" class="contact-action" title="Email" onclick="event.stopPropagation()">${ICONS.email}</a>`);
   }
   if (business.website) {
-    contactActions.push(`<a href="${business.website}" target="_blank" rel="noopener" class="contact-action" title="Website" onclick="event.stopPropagation()">${ICONS.globe}</a>`);
+    contactActions.push(`<a href="${esc(business.website)}" target="_blank" rel="noopener" class="contact-action" title="Website" onclick="event.stopPropagation()">${ICONS.globe}</a>`);
   }
   if (business.instagram) {
     const igUrl = business.instagram.startsWith('http') ? business.instagram : 'https://instagram.com/' + business.instagram.replace('@','');
@@ -179,7 +187,7 @@ function createBusinessCard(business) {
     <div class="business-card" data-id="${business.id}" onclick="openBusinessModal('${business.id}')">
       <div class="card-inner">
         <div class="card-top-bar">
-          <span class="card-type-badge">${business.industry}</span>
+          <span class="card-type-badge">${esc(business.industry)}</span>
           <span class="card-we-badge">BA</span>
         </div>
         <div class="card-art" style="background:${business.logo_url ? 'transparent' : color}">
@@ -189,20 +197,20 @@ function createBusinessCard(business) {
           }
         </div>
         <div class="card-name-bar">
-          <h3>${business.name}</h3>
+          <h3>${esc(business.name)}</h3>
           <span class="card-verified-dot" title="Auburn Verified"></span>
         </div>
         <div class="card-desc">
-          <p>${business.bio}</p>
+          <p>${esc(business.bio)}</p>
         </div>
         <div class="card-stats">
           <div class="card-stat">
             <span class="stat-icon">${ICONS.location}</span>
-            <span class="stat-text">${business.location}</span>
+            <span class="stat-text">${esc(business.location)}</span>
           </div>
           <div class="card-stat">
             <span class="stat-icon">${ICONS.user}</span>
-            <span class="stat-text">${business.owner}</span>
+            <span class="stat-text">${esc(business.owner)}</span>
           </div>
         </div>
         <div class="card-bottom">
@@ -222,7 +230,7 @@ function openBusinessModal(id) {
   const icon = getIndustryIcon(business.industry);
   const color = getIndustryColor(business.industry);
   const websiteLink = business.website
-    ? `<a href="${business.website}" target="_blank" rel="noopener">${business.website.replace('https://', '')} ${ICONS.external}</a>`
+    ? `<a href="${esc(business.website)}" target="_blank" rel="noopener">${esc(business.website.replace('https://', ''))} ${ICONS.external}</a>`
     : 'N/A';
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.address || business.location)}`;
 
@@ -237,36 +245,36 @@ function openBusinessModal(id) {
           ? '<img src="' + business.logo_url + '" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid rgba(255,255,255,0.2);margin-bottom:16px;position:relative;z-index:1;">'
           : '<div class="modal-icon">' + icon + '</div>'
         }
-        <h2 style="position:relative;z-index:1;">${business.name}</h2>
-        <span class="modal-industry" style="position:relative;z-index:1;">${business.industry}</span>
+        <h2 style="position:relative;z-index:1;">${esc(business.name)}</h2>
+        <span class="modal-industry" style="position:relative;z-index:1;">${esc(business.industry)}</span>
       </div>
       <div class="modal-body">
         <div class="modal-info-row">
           ${ICONS.location}
           <div>
             <div class="info-label">Address</div>
-            <div class="info-value">${business.address || business.location}</div>
+            <div class="info-value">${esc(business.address || business.location)}</div>
           </div>
         </div>
         <div class="modal-info-row">
           ${ICONS.user}
           <div>
             <div class="info-label">Owner</div>
-            <div class="info-value">${business.owner}</div>
+            <div class="info-value">${esc(business.owner)}</div>
           </div>
         </div>
         <div class="modal-info-row">
           ${ICONS.email}
           <div>
             <div class="info-label">Contact</div>
-            <div class="info-value"><a href="mailto:${business.contact}">${business.contact}</a></div>
+            <div class="info-value"><a href="mailto:${esc(business.contact)}">${esc(business.contact)}</a></div>
           </div>
         </div>
         <div class="modal-info-row">
           ${ICONS.phone}
           <div>
             <div class="info-label">Phone</div>
-            <div class="info-value"><a href="tel:${business.phone}">${business.phone}</a></div>
+            <div class="info-value"><a href="tel:${esc(business.phone)}">${esc(business.phone)}</a></div>
           </div>
         </div>
         <div class="modal-info-row">
@@ -278,7 +286,7 @@ function openBusinessModal(id) {
         </div>
         <div class="modal-bio">
           <h4>About</h4>
-          <p>${business.bio}</p>
+          <p>${esc(business.bio)}</p>
         </div>
       </div>
       ${(business.instagram || business.facebook || business.twitter || business.tiktok) ? `
@@ -290,8 +298,8 @@ function openBusinessModal(id) {
         ${business.tiktok ? `<a href="${business.tiktok.startsWith('http') ? business.tiktok : 'https://tiktok.com/@' + business.tiktok.replace('@','')}" target="_blank" rel="noopener" style="width:34px;height:34px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.6);transition:0.2s;" onmouseover="this.style.background='#000';this.style.color='#fff';this.style.borderColor='#333'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.6)';this.style.borderColor='rgba(255,255,255,0.08)'"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.61a8.21 8.21 0 0 0 4.76 1.51v-3.45a4.85 4.85 0 0 1-1-.02z"/></svg></a>` : ''}
       </div>` : ''}
       <div class="modal-actions">
-        ${business.phone ? `<a href="tel:${business.phone}" class="btn btn-primary">Call Now ${ICONS.phone}</a>` : ''}
-        ${business.website ? `<a href="${business.website}" target="_blank" rel="noopener" class="btn btn-secondary">Visit Website</a>` : ''}
+        ${business.phone ? `<a href="tel:${esc(business.phone)}" class="btn btn-primary">Call Now ${ICONS.phone}</a>` : ''}
+        ${business.website ? `<a href="${esc(business.website)}" target="_blank" rel="noopener" class="btn btn-secondary">Visit Website</a>` : ''}
         <a href="${mapsUrl}" target="_blank" rel="noopener" class="btn btn-outline">Get Directions</a>
       </div>
     </div>
