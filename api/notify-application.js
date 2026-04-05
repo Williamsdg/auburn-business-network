@@ -32,7 +32,7 @@ export default async function handler(req, res) {
 <tr><td style="background:linear-gradient(135deg,#03244d,#0a3a6b);padding:32px 36px;border-radius:14px 14px 0 0;text-align:center;">
   <img src="https://buyauburn.com/assets/images/email-logo-wide.png" alt="Buy Auburn" width="180" style="width:180px;height:auto;border-radius:8px;margin-bottom:12px;">
   <h1 style="color:#fff;font-size:22px;margin:0 0 4px;font-weight:800;">New Business Application</h1>
-  <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">A new business wants to join the Auburn Business Network</p>
+  <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">A new business wants to join the Buy Auburn Network</p>
 </td></tr>
 
 <!-- Business Card -->
@@ -132,7 +132,7 @@ export default async function handler(req, res) {
 
 <!-- Footer -->
 <tr><td style="background:#03244d;padding:20px 36px;text-align:center;border-top:2px solid #F26522;border-radius:0 0 14px 14px;">
-  <p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 4px;">Auburn Business Network — Admin Notification</p>
+  <p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 4px;">Buy Auburn Network — Admin Notification</p>
   <p style="color:rgba(255,255,255,0.2);font-size:11px;margin:0;">buyauburn.com</p>
 </td></tr>
 
@@ -149,7 +149,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'Auburn Business Network <noreply@buyauburn.com>',
+        from: 'Buy Auburn Network <noreply@buyauburn.com>',
         to: ['thebarnauburn@gmail.com', 'Dylan@williamsdigital.io'],
         subject: `New Application: ${app.businessName} — ${app.industry}`,
         html: emailHtml

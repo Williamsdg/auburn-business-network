@@ -98,7 +98,7 @@ export default async function handler(req, res) {
         '<tr><td style="background:#071e3d;padding:32px 36px;"><p style="color:rgba(255,255,255,0.65);font-size:14px;line-height:1.7;margin:0 0 8px;">War Eagle! Here is your complete 2026 away game schedule. Before each of these games, we will email you Auburn-owned businesses near that city so you can support the Auburn family on the road.</p><p style="color:rgba(255,255,255,0.4);font-size:13px;margin:0 0 28px;"><span style="color:#F26522;">&#9679;</span> Orange = away games where we will send you business picks</p>' +
         scheduleSections +
         '<div style="background:rgba(242,101,34,0.08);border-radius:10px;padding:20px;text-align:center;margin-top:8px;"><p style="color:rgba(255,255,255,0.6);font-size:13px;margin:0 0 12px;">Want to browse Auburn businesses now?</p><a href="https://buyauburn.com/directory.html" style="display:inline-block;background:#F26522;color:#fff;padding:12px 28px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;">Browse the Directory</a></div></td></tr>' +
-        '<tr><td style="background:#03244d;padding:24px 36px;text-align:center;border-top:2px solid #F26522;border-radius:0 0 14px 14px;"><p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0 0 4px;">Auburn Business Network — Wherever Auburn Goes, We Go</p><p style="color:rgba(255,255,255,0.2);font-size:10px;margin:0;">buyauburn.com</p></td></tr>' +
+        '<tr><td style="background:#03244d;padding:24px 36px;text-align:center;border-top:2px solid #F26522;border-radius:0 0 14px 14px;"><p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0 0 4px;">Buy Auburn Network — Wherever Auburn Goes, We Go</p><p style="color:rgba(255,255,255,0.2);font-size:10px;margin:0;">buyauburn.com</p></td></tr>' +
         '</table></td></tr></table></body></html>';
 
       try {
@@ -106,7 +106,7 @@ export default async function handler(req, res) {
           method: 'POST',
           headers: { 'Authorization': 'Bearer ' + RESEND_KEY, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            from: 'Auburn Business Network <noreply@buyauburn.com>',
+            from: 'Buy Auburn Network <noreply@buyauburn.com>',
             to: [sub.email],
             subject: '🏈 Your 2026 Auburn Away Game Guide — Buy Auburn',
             html: html

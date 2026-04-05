@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     Hey ${ownerName || 'there'},
   </p>
   <p style="color:rgba(255,255,255,0.75);font-size:15px;line-height:1.7;margin:0 0 24px;">
-    Great news! <strong style="color:#fff;">${businessName}</strong> has been approved for the Auburn Business Network. You're one step away from reaching Auburn fans nationwide.
+    Great news! <strong style="color:#fff;">${businessName}</strong> has been approved for the Buy Auburn Network. You're one step away from reaching Auburn fans nationwide.
   </p>
 
   <div style="background:rgba(0,0,0,0.25);border-radius:12px;padding:24px;border:1px solid rgba(242,101,34,0.15);margin-bottom:24px;text-align:center;">
@@ -85,7 +85,7 @@ export default async function handler(req, res) {
 
 <!-- Footer -->
 <tr><td style="background:#03244d;padding:24px 36px;text-align:center;border-top:2px solid #F26522;border-radius:0 0 14px 14px;">
-  <p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 4px;">Auburn Business Network — Wherever Auburn Goes, We Go</p>
+  <p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 4px;">Buy Auburn Network — Wherever Auburn Goes, We Go</p>
   <p style="color:rgba(255,255,255,0.2);font-size:11px;margin:0 0 8px;">buyauburn.com</p>
   <p style="color:rgba(255,255,255,0.15);font-size:10px;margin:0;"><a href="https://buyauburn.com/unsubscribe.html?email=${encodeURIComponent(email)}" style="color:rgba(255,255,255,0.2);text-decoration:underline;">Unsubscribe</a></p>
 </td></tr>
@@ -103,9 +103,9 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'Auburn Business Network <noreply@buyauburn.com>',
+        from: 'Buy Auburn Network <noreply@buyauburn.com>',
         to: [email],
-        subject: `You're Approved! Complete Your ${businessName} Listing — Auburn Business Network`,
+        subject: `You're Approved! Complete Your ${businessName} Listing — Buy Auburn Network`,
         html: emailHtml
       })
     });

@@ -89,7 +89,7 @@ function buildGameEmailHtml(game, businesses) {
 </td></tr>
 
 <tr><td style="background:#03244d;padding:20px 36px;text-align:center;border-top:2px solid #F26522;border-radius:0 0 14px 14px;">
-  <p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0 0 4px;">Auburn Business Network — Wherever Auburn Goes, We Go</p>
+  <p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0 0 4px;">Buy Auburn Network — Wherever Auburn Goes, We Go</p>
   <p style="color:rgba(255,255,255,0.2);font-size:10px;margin:0;">buyauburn.com</p>
 </td></tr>
 
@@ -165,7 +165,7 @@ export default async function handler(req, res) {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              from: 'Auburn Business Network <noreply@buyauburn.com>',
+              from: 'Buy Auburn Network <noreply@buyauburn.com>',
               to: [sub.email],
               subject: `🏈 Game Week: Auburn ${game.sport} at ${game.city} — Auburn Businesses Near You`,
               html: html

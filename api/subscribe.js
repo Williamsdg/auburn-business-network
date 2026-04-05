@@ -40,7 +40,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'Auburn Business Network <noreply@buyauburn.com>',
+        from: 'Buy Auburn Network <noreply@buyauburn.com>',
         to: [email],
         subject: '🏈 Welcome to Buy Auburn — War Eagle!',
         html: `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -59,7 +59,7 @@ export default async function handler(req, res) {
 <!-- Body -->
 <tr><td style="background:#071e3d;padding:36px;">
   <p style="color:rgba(255,255,255,0.75);font-size:15px;line-height:1.7;margin:0 0 24px;">
-    You're officially part of the Auburn Business Network family. Before every away game, we'll send you Auburn-owned businesses near that city — restaurants, shops, and services run by people in the Auburn family.
+    You're officially part of the Buy Auburn Network family. Before every away game, we'll send you Auburn-owned businesses near that city — restaurants, shops, and services run by people in the Auburn family.
   </p>
 
   <div style="background:rgba(0,0,0,0.2);border-radius:10px;padding:20px;border-left:3px solid #F26522;margin-bottom:20px;">
@@ -108,7 +108,7 @@ export default async function handler(req, res) {
 
 <!-- Footer -->
 <tr><td style="background:#03244d;padding:24px 36px;text-align:center;border-top:2px solid #F26522;border-radius:0 0 14px 14px;">
-  <p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 4px;">Auburn Business Network — Wherever Auburn Goes, We Go</p>
+  <p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 4px;">Buy Auburn Network — Wherever Auburn Goes, We Go</p>
   <p style="color:rgba(255,255,255,0.2);font-size:11px;margin:0;">buyauburn.com</p>
 </td></tr>
 
