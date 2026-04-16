@@ -456,9 +456,10 @@
               <option value="">Select State</option>
             </select>
           </div>
-          <div class="form-group">
-            <label>Business Address <span class="required">*</span></label>
+          <div class="form-group" id="address-group">
+            <label>Business Address <span class="required" id="address-required">*</span></label>
             <input type="text" name="address" required placeholder="e.g. 123 S College St">
+            <p id="address-hint" class="help-text" style="display:none;font-size:0.78rem;color:rgba(255,255,255,0.4);margin-top:4px;">Optional for online businesses — add a physical address if you have one to appear in location-based searches.</p>
           </div>
         </div>
         <div class="form-group">
@@ -677,12 +678,26 @@
       const localIcon = localLabel.querySelector('div > svg');
       const onlineIcon = onlineLabel.querySelector('div > svg');
 
+      const addressGroup = document.getElementById('address-group');
+      const addressInput = addressGroup.querySelector('input');
+      const addressRequired = document.getElementById('address-required');
+      const addressHint = document.getElementById('address-hint');
+      const cityInput = cityGroup.querySelector('input');
+      const cityLabel = cityGroup.querySelector('label');
+      const stateSelect = document.getElementById('state-select');
+      const stateLabel = document.getElementById('state-group').querySelector('label');
+
       if (isOnline) {
-        locationRow.style.display = 'none';
-        cityGroup.style.display = 'none';
-        locationRow.querySelectorAll('input, select').forEach(i => { i.required = false; i.value = ''; });
-        cityGroup.querySelector('input').required = false;
-        cityGroup.querySelector('input').value = '';
+        // Keep fields visible but make city/state/address optional
+        locationRow.style.display = '';
+        cityGroup.style.display = '';
+        cityInput.required = false;
+        stateSelect.required = false;
+        addressInput.required = false;
+        cityLabel.innerHTML = 'City <span style="color:rgba(255,255,255,0.3);font-size:0.8rem;">(optional)</span>';
+        stateLabel.innerHTML = 'State <span style="color:rgba(255,255,255,0.3);font-size:0.8rem;">(optional)</span>';
+        addressRequired.style.display = 'none';
+        addressHint.style.display = 'block';
         onlineLabel.style.borderColor = 'var(--orange)';
         onlineLabel.style.background = 'rgba(242,101,34,0.08)';
         onlineCheck.style.display = 'flex';
@@ -696,8 +711,13 @@
       } else {
         locationRow.style.display = '';
         cityGroup.style.display = '';
-        locationRow.querySelectorAll('input, select').forEach(i => i.required = true);
-        cityGroup.querySelector('input').required = true;
+        cityInput.required = true;
+        stateSelect.required = true;
+        addressInput.required = true;
+        cityLabel.innerHTML = 'City <span class="required">*</span>';
+        stateLabel.innerHTML = 'State <span class="required">*</span>';
+        addressRequired.style.display = '';
+        addressHint.style.display = 'none';
         localLabel.style.borderColor = 'var(--orange)';
         localLabel.style.background = 'rgba(242,101,34,0.08)';
         localCheck.style.display = 'flex';
