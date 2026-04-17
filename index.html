@@ -853,7 +853,7 @@
   <script src="assets/js/main.js?v=6"></script>
   <script src="assets/js/analytics.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', async () => {
+    (async () => {
       await loadBusinesses();
 
       const industrySelect = document.getElementById('hero-industry');
@@ -865,7 +865,7 @@
       const featured = getFeaturedBusinesses(4);
       const grid = document.getElementById('featured-grid');
       grid.innerHTML = featured.map(b => createBusinessCard(b)).join('');
-    });
+    })();
 
     // Populate travel alerts form
     function initTravelForm() {
