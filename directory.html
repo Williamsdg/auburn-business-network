@@ -449,7 +449,7 @@
           </select>
         </div>
         <div class="filter-group">
-          <label for="filter-location">City</label>
+          <label for="filter-location">Location</label>
           <select id="filter-location" onchange="applyFilters()">
             <option value="">All Cities</option>
           </select>
@@ -515,23 +515,29 @@
   <script>
     const STATE_NAMES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
 
+    STATE_NAMES['Online'] = 'Online';
+
     (async () => {
       await loadBusinesses();
       const industrySelect = document.getElementById('filter-industry');
       const locationSelect = document.getElementById('filter-location');
       const stateSelect = document.getElementById('filter-state');
 
+      // Populate industries
       getIndustries().forEach(ind => {
         industrySelect.innerHTML += `<option value="${ind}">${ind}</option>`;
       });
-      getLocations().forEach(loc => {
-        locationSelect.innerHTML += `<option value="${loc}">${loc}</option>`;
-      });
 
-      // Populate states from businesses
+      // Populate states (with readable names)
       const states = [...new Set(_businessesCache.filter(b => b.state).map(b => b.state))].sort();
       states.forEach(st => {
         stateSelect.innerHTML += `<option value="${st}">${STATE_NAMES[st] || st}</option>`;
+      });
+
+      // Populate cities (extract city name from location string)
+      const cities = [...new Set(_businessesCache.map(b => b.location).filter(Boolean))].sort();
+      cities.forEach(loc => {
+        locationSelect.innerHTML += `<option value="${loc}">${loc}</option>`;
       });
 
       // Check URL params for pre-selected filters
@@ -550,12 +556,20 @@
       const location = document.getElementById('filter-location').value;
       const query = document.getElementById('filter-search').value;
 
-      let results = searchBusinesses({ query, industry, location });
-
-      // Filter by state
-      if (state) {
-        results = results.filter(b => b.state === state);
-      }
+      let results = _businessesCache.filter(b => {
+        // State filter
+        if (state && b.state !== state) return false;
+        // Location/city filter
+        if (location && b.location !== location) return false;
+        // Industry filter
+        if (industry && b.industry !== industry) return false;
+        // Text search
+        if (query) {
+          const searchStr = `${b.name} ${b.bio} ${b.owner} ${b.industry} ${b.location}`.toLowerCase();
+          if (!searchStr.includes(query.toLowerCase())) return false;
+        }
+        return true;
+      });
 
       const grid = document.getElementById('results-grid');
       const noResults = document.getElementById('no-results');
