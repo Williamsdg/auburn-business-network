@@ -444,7 +444,7 @@
       <div id="browse-filters" class="filters-row">
         <div class="filter-group">
           <label for="filter-state">State</label>
-          <select id="filter-state" onchange="applyFilters()">
+          <select id="filter-state" onchange="updateLocationDropdown(); applyFilters()">
             <option value="">All States</option>
           </select>
         </div>
@@ -517,10 +517,33 @@
 
     STATE_NAMES['Online'] = 'Online';
 
+    function updateLocationDropdown() {
+      const stateSelect = document.getElementById('filter-state');
+      const locationSelect = document.getElementById('filter-location');
+      const selectedState = stateSelect.value;
+      const currentLocation = locationSelect.value;
+
+      // Filter locations based on selected state
+      let filtered = _businessesCache;
+      if (selectedState) {
+        filtered = filtered.filter(b => b.state === selectedState);
+      }
+      const locations = [...new Set(filtered.map(b => b.location).filter(Boolean))].sort();
+
+      locationSelect.innerHTML = '<option value="">All Locations</option>';
+      locations.forEach(loc => {
+        locationSelect.innerHTML += `<option value="${loc}">${loc}</option>`;
+      });
+
+      // Restore selection if still valid
+      if (locations.includes(currentLocation)) {
+        locationSelect.value = currentLocation;
+      }
+    }
+
     (async () => {
       await loadBusinesses();
       const industrySelect = document.getElementById('filter-industry');
-      const locationSelect = document.getElementById('filter-location');
       const stateSelect = document.getElementById('filter-state');
 
       // Populate industries
@@ -534,17 +557,14 @@
         stateSelect.innerHTML += `<option value="${st}">${STATE_NAMES[st] || st}</option>`;
       });
 
-      // Populate cities (extract city name from location string)
-      const cities = [...new Set(_businessesCache.map(b => b.location).filter(Boolean))].sort();
-      cities.forEach(loc => {
-        locationSelect.innerHTML += `<option value="${loc}">${loc}</option>`;
-      });
+      // Populate all locations initially
+      updateLocationDropdown();
 
       // Check URL params for pre-selected filters
       const params = new URLSearchParams(window.location.search);
-      if (params.get('state')) stateSelect.value = params.get('state');
+      if (params.get('state')) { stateSelect.value = params.get('state'); updateLocationDropdown(); }
       if (params.get('industry')) industrySelect.value = params.get('industry');
-      if (params.get('location')) locationSelect.value = params.get('location');
+      if (params.get('location')) document.getElementById('filter-location').value = params.get('location');
       if (params.get('q')) document.getElementById('filter-search').value = params.get('q');
 
       applyFilters();
