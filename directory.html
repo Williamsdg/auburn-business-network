@@ -383,13 +383,23 @@
       .nav-links a:hover, .nav-links a.active { background: rgba(242,101,34,0.08); }
       .nav-links .btn-nav { text-align: center; margin: 12px 0 4px; border-radius: 8px; border-bottom: none; }
       .business-grid { grid-template-columns: 1fr; }
+      .filters-bar { position: static; padding: 12px 0; }
       .filters-row { flex-direction: column; gap: 8px; }
       .filter-group { width: 100%; min-width: auto; }
-      .view-tabs { width: 100%; }
-      .view-tabs button { flex: 1; text-align: center; }
+      .filter-group label { font-size: 0.7rem; margin-bottom: 2px; }
+      .filter-group select, .filter-group input { padding: 8px 12px; font-size: 0.85rem; }
+      .view-tabs { width: 100%; margin-bottom: 8px !important; }
+      .view-tabs button { flex: 1; text-align: center; padding: 8px 12px !important; font-size: 0.82rem !important; }
       .modal-actions { flex-direction: column; }
       .logo-buy, .logo-auburn { font-size: 1.2rem; }
+      /* Collapsible filters on mobile */
+      .mobile-filter-toggle { display: flex !important; }
+      #browse-filters.collapsed { display: none !important; }
+      .results-count { padding-top: 12px; }
     }
+    .mobile-filter-toggle { display: none; align-items: center; justify-content: space-between; width: 100%; padding: 10px 14px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--white); font-size: 0.88rem; font-weight: 600; cursor: pointer; margin-bottom: 8px; font-family: inherit; }
+    .mobile-filter-toggle svg { transition: transform 0.25s ease; }
+    .mobile-filter-toggle.open svg { transform: rotate(180deg); }
     @media (max-width: 480px) {
       .container { padding: 0 16px; }
     }
@@ -440,8 +450,14 @@
         </button>
       </div>
 
+      <!-- Mobile filter toggle -->
+      <button class="mobile-filter-toggle" id="filter-toggle" onclick="toggleMobileFilters()">
+        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Filters</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+
       <!-- Browse Filters -->
-      <div id="browse-filters" class="filters-row">
+      <div id="browse-filters" class="filters-row collapsed">
         <div class="filter-group">
           <label for="filter-state">State</label>
           <select id="filter-state" onchange="updateLocationDropdown(); applyFilters()">
@@ -516,6 +532,25 @@
     const STATE_NAMES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
 
     STATE_NAMES['Online'] = 'Online';
+
+    function toggleMobileFilters() {
+      const filters = document.getElementById('browse-filters');
+      const btn = document.getElementById('filter-toggle');
+      filters.classList.toggle('collapsed');
+      btn.classList.toggle('open');
+    }
+
+    // Show filters by default on desktop
+    function setInitialFilterState() {
+      const filters = document.getElementById('browse-filters');
+      if (window.innerWidth > 768) {
+        filters.classList.remove('collapsed');
+      } else {
+        filters.classList.add('collapsed');
+      }
+    }
+    setInitialFilterState();
+    window.addEventListener('resize', setInitialFilterState);
 
     function updateLocationDropdown() {
       const stateSelect = document.getElementById('filter-state');
