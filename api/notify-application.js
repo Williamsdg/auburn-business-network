@@ -81,13 +81,13 @@ export default async function handler(req, res) {
   <!-- Description -->
   <div style="margin-bottom:20px;">
     <p style="color:rgba(255,255,255,0.4);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 6px;">Business Description</p>
-    <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin:0;background:rgba(0,0,0,0.15);padding:14px;border-radius:8px;border-left:3px solid #F26522;">${app.bio}</p>
+    <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin:0;background:rgba(0,0,0,0.15);padding:14px;border-radius:8px;border-left:3px solid #F26522;white-space:pre-wrap;">${app.bio}</p>
   </div>
 
   <!-- Auburn Connection -->
   <div style="margin-bottom:20px;">
     <p style="color:rgba(255,255,255,0.4);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 6px;">Auburn Connection</p>
-    <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin:0;background:rgba(0,0,0,0.15);padding:14px;border-radius:8px;border-left:3px solid #F26522;">${app.auburnConnection}</p>
+    <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin:0;background:rgba(0,0,0,0.15);padding:14px;border-radius:8px;border-left:3px solid #F26522;white-space:pre-wrap;">${app.auburnConnection}</p>
   </div>
 
   <!-- Referral -->
