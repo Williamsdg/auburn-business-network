@@ -10,6 +10,12 @@ function esc(str) {
   return d.innerHTML;
 }
 
+// Escape HTML and preserve line breaks/paragraph spacing
+function escMultiline(str) {
+  if (!str) return '';
+  return esc(str).replace(/\n/g, '<br>');
+}
+
 // SVG Icons used throughout the site
 const ICONS = {
   location: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
@@ -286,7 +292,7 @@ function openBusinessModal(id) {
         </div>
         <div class="modal-bio">
           <h4>About</h4>
-          <p>${esc(business.bio)}</p>
+          <p>${escMultiline(business.bio)}</p>
         </div>
       </div>
       ${(business.instagram || business.facebook || business.twitter || business.tiktok) ? `
