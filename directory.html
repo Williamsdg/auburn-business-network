@@ -17,6 +17,7 @@
   <meta name="twitter:image" content="https://buyauburn.com/og-image.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://ushenraaxcxsxeimhsca.supabase.co" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     /* === Reset & Base === */
@@ -147,6 +148,34 @@
 
     /* === Business Card Grid === */
     .business-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+
+    /* === Skeleton Loading Cards === */
+    .skeleton-card {
+      background: linear-gradient(145deg, rgba(10,58,107,0.3) 0%, rgba(7,30,61,0.4) 100%);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 16px;
+      height: 320px;
+      padding: 14px;
+      display: flex; flex-direction: column; gap: 12px;
+      position: relative; overflow: hidden;
+    }
+    .skeleton-card::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+      transform: translateX(-100%);
+      animation: skeleton-shimmer 1.4s infinite;
+    }
+    .skeleton-line { background: rgba(255,255,255,0.05); border-radius: 6px; }
+    .skeleton-line.sk-art { height: 140px; }
+    .skeleton-line.sk-title { height: 18px; width: 70%; }
+    .skeleton-line.sk-desc { height: 12px; width: 95%; }
+    .skeleton-line.sk-desc-2 { height: 12px; width: 80%; }
+    .skeleton-line.sk-stat { height: 32px; }
+    .skeleton-stats { display: flex; gap: 6px; margin-top: auto; }
+    .skeleton-stats .skeleton-line { flex: 1; }
+    @keyframes skeleton-shimmer {
+      100% { transform: translateX(100%); }
+    }
 
     /* === Trading Card (Dark Theme) === */
     .business-card {
@@ -407,6 +436,9 @@
 </head>
 <body>
 
+  <!-- Partnership banner -->
+  <a href="https://www.thebarnauburn.com/" target="_blank" rel="noopener" style="display:block;background:#020e1f;color:rgba(255,255,255,0.6);text-align:center;padding:8px 16px;font-size:0.78rem;font-weight:500;letter-spacing:0.3px;border-bottom:1px solid rgba(242,101,34,0.2);text-decoration:none;transition:color 0.2s ease;" onmouseover="this.style.color='#F26522'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Powered by <strong style="color:#F26522;font-weight:700;">The Barn</strong> →</a>
+
   <!-- Navigation -->
   <nav class="navbar">
     <div class="container">
@@ -519,7 +551,7 @@
       <p>&copy; 2026 Auburn Business Network.</p>
       <p style="margin-top:12px;font-size:0.72rem;color:rgba(255,255,255,0.25);max-width:600px;margin-left:auto;margin-right:auto;line-height:1.6;">Auburn Business Network is not affiliated with, endorsed by, or sponsored by Auburn University. All trademarks, logos, and brand names are the property of their respective owners.</p>
       <p style="margin-top:12px;display:flex;gap:16px;justify-content:center;font-size:0.78rem;"><a href="privacy.html" style="color:rgba(255,255,255,0.35);text-decoration:none;transition:0.2s;" onmouseover="this.style.color='#F26522'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Privacy Policy</a><a href="terms.html" style="color:rgba(255,255,255,0.35);text-decoration:none;transition:0.2s;" onmouseover="this.style.color='#F26522'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Terms of Service</a></p>
-      <p style="margin-top:8px;font-size:0.75rem;color:rgba(255,255,255,0.2);"><a href="https://williamsdigital.io" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.25);text-decoration:none;transition:0.2s;" onmouseover="this.style.color='#F26522'" onmouseout="this.style.color='rgba(255,255,255,0.25)'">Powered by Williams Digital</a></p>
+      <p style="margin-top:8px;font-size:0.75rem;color:rgba(255,255,255,0.2);"><a href="https://williamsdigital.io" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.25);text-decoration:none;transition:0.2s;" onmouseover="this.style.color='#F26522'" onmouseout="this.style.color='rgba(255,255,255,0.25)'">Built by Williams Digital</a></p>
     </div>
   </footer>
 
@@ -575,6 +607,24 @@
         locationSelect.value = currentLocation;
       }
     }
+
+    // Paint skeleton cards immediately so the page doesn't sit blank while Supabase responds.
+    function renderSkeletons(n = 8) {
+      const grid = document.getElementById('results-grid');
+      const skeletonCard = `
+        <div class="skeleton-card">
+          <div class="skeleton-line sk-art"></div>
+          <div class="skeleton-line sk-title"></div>
+          <div class="skeleton-line sk-desc"></div>
+          <div class="skeleton-line sk-desc-2"></div>
+          <div class="skeleton-stats">
+            <div class="skeleton-line sk-stat"></div>
+            <div class="skeleton-line sk-stat"></div>
+          </div>
+        </div>`;
+      grid.innerHTML = skeletonCard.repeat(n);
+    }
+    renderSkeletons();
 
     (async () => {
       await loadBusinesses();

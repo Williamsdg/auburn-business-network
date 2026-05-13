@@ -8,11 +8,13 @@ let _businessesCache = [];
 let _industriesCache = [];
 
 // Fetch all active businesses from Supabase
+// Selects only the columns the public cards/modal need — skips heavy/admin-only
+// fields (payment_status, application_id, created_at) to shrink payload.
 async function loadBusinesses() {
   try {
     const { data, error } = await db
       .from('businesses')
-      .select('*')
+      .select('id, name, industry, address, location, state, website, bio, owner, contact, phone, lat, lng, logo_url, instagram, twitter, facebook, tiktok')
       .order('name');
 
     if (error) throw error;
