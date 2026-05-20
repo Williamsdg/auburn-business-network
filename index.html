@@ -881,7 +881,7 @@
       });
 
       // Load featured businesses (randomized)
-      const featured = getFeaturedBusinesses(4);
+      const featured = getFeaturedBusinesses(6);
       const grid = document.getElementById('featured-grid');
       grid.innerHTML = featured.map(b => createBusinessCard(b)).join('');
 
