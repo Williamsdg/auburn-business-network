@@ -297,6 +297,7 @@
           <button class="admin-tab active" onclick="switchTab('applications', this)">Applications</button>
           <button class="admin-tab" onclick="switchTab('businesses', this)">Businesses</button>
           <button class="admin-tab" onclick="switchTab('subscribers', this)">Travel Subscribers</button>
+          <button class="admin-tab" onclick="switchTab('podcasts', this)">Podcasts</button>
           <button class="admin-tab" onclick="switchTab('analytics', this)">Analytics</button>
         </div>
 
@@ -348,6 +349,36 @@
                 </tr>
               </thead>
               <tbody id="subscribers-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Podcast Segments -->
+        <div id="tab-podcasts" style="display:none;">
+          <div style="background:linear-gradient(160deg,var(--navy-mid) 0%,var(--navy) 100%);border:1px solid rgba(255,255,255,0.04);border-radius:var(--radius-lg);padding:20px;margin-bottom:20px;">
+            <h3 style="font-size:0.95rem;margin:0 0 4px;color:#fff;">Add a Buy Auburn segment</h3>
+            <p style="font-size:0.82rem;color:rgba(255,255,255,0.45);margin:0 0 14px;">Paste any Spotify episode URL (open.spotify.com/episode/...). The title and artwork are pulled automatically.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input type="text" id="podcast-url-input" placeholder="https://open.spotify.com/episode/..." style="flex:1;min-width:240px;padding:10px 14px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#fff;font-size:0.9rem;outline:none;font-family:inherit;" onkeydown="if(event.key==='Enter')handleAddPodcast()">
+              <button onclick="handleAddPodcast()" id="podcast-add-btn" style="padding:10px 20px;border-radius:8px;background:#F26522;border:none;color:#fff;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:inherit;">Add Episode</button>
+            </div>
+            <div id="podcast-add-msg" style="margin-top:10px;font-size:0.82rem;display:none;"></div>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width:80px;">Order</th>
+                  <th>Episode</th>
+                  <th style="width:120px;">Visible</th>
+                  <th style="width:140px;">Added</th>
+                  <th style="width:120px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="podcasts-body">
+                <tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,0.4);padding:40px;">Loading...</td></tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -869,11 +900,125 @@
     function switchTab(tab, btn) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
-      ['applications','businesses','subscribers','analytics'].forEach(t => {
+      ['applications','businesses','subscribers','podcasts','analytics'].forEach(t => {
         const el = document.getElementById('tab-' + t);
         if (el) el.style.display = t === tab ? '' : 'none';
       });
       if (tab === 'analytics') loadAnalytics();
+      if (tab === 'podcasts') renderPodcasts();
+    }
+
+    // === Podcast Segments ===
+    let _podcasts = [];
+
+    async function renderPodcasts() {
+      const tbody = document.getElementById('podcasts-body');
+      try {
+        _podcasts = await loadAllPodcasts();
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" style="color:#ef4444;padding:20px;">Failed to load podcasts: ${esc(err.message)}</td></tr>`;
+        return;
+      }
+
+      if (_podcasts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,0.4);padding:40px;">No podcasts yet — add one above.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = _podcasts.map((p, i) => `
+        <tr>
+          <td>
+            <div style="display:flex;gap:4px;">
+              <button onclick="movePodcast('${p.id}', -1)" ${i === 0 ? 'disabled' : ''} title="Move up" style="width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:#fff;cursor:${i === 0 ? 'not-allowed' : 'pointer'};opacity:${i === 0 ? '0.3' : '1'};font-family:inherit;">↑</button>
+              <button onclick="movePodcast('${p.id}', 1)" ${i === _podcasts.length - 1 ? 'disabled' : ''} title="Move down" style="width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:#fff;cursor:${i === _podcasts.length - 1 ? 'not-allowed' : 'pointer'};opacity:${i === _podcasts.length - 1 ? '0.3' : '1'};font-family:inherit;">↓</button>
+            </div>
+          </td>
+          <td>
+            <div style="display:flex;gap:12px;align-items:center;">
+              ${p.artwork_url ? `<img src="${esc(p.artwork_url)}" alt="" style="width:48px;height:48px;border-radius:6px;object-fit:cover;flex-shrink:0;">` : `<div style="width:48px;height:48px;border-radius:6px;background:rgba(242,101,34,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F26522" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>`}
+              <div style="min-width:0;">
+                <div style="color:#fff;font-weight:600;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:340px;">${esc(p.title || '(Untitled episode)')}</div>
+                <a href="${esc(p.spotify_url)}" target="_blank" rel="noopener" style="color:#F26522;font-size:0.75rem;text-decoration:none;">Open on Spotify ↗</a>
+              </div>
+            </div>
+          </td>
+          <td>
+            <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:0.82rem;">
+              <input type="checkbox" ${p.is_visible ? 'checked' : ''} onchange="togglePodcastVisibility('${p.id}', this.checked)" style="cursor:pointer;">
+              <span style="color:${p.is_visible ? '#22c55e' : 'rgba(255,255,255,0.4)'};">${p.is_visible ? 'Visible' : 'Hidden'}</span>
+            </label>
+          </td>
+          <td style="color:rgba(255,255,255,0.55);font-size:0.8rem;">${new Date(p.created_at).toLocaleDateString()}</td>
+          <td>
+            <button onclick="handleDeletePodcast('${p.id}')" style="padding:6px 12px;border-radius:6px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function handleAddPodcast() {
+      const input = document.getElementById('podcast-url-input');
+      const msg = document.getElementById('podcast-add-msg');
+      const btn = document.getElementById('podcast-add-btn');
+      const url = input.value.trim();
+
+      msg.style.display = 'none';
+      if (!url) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Adding...';
+      try {
+        await addPodcast(url);
+        input.value = '';
+        msg.textContent = '✓ Episode added.';
+        msg.style.color = '#22c55e';
+        msg.style.display = 'block';
+        await renderPodcasts();
+        setTimeout(() => { msg.style.display = 'none'; }, 3000);
+      } catch (err) {
+        msg.textContent = err.message || 'Could not add that episode.';
+        msg.style.color = '#ef4444';
+        msg.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Add Episode';
+      }
+    }
+
+    async function handleDeletePodcast(id) {
+      if (!confirm('Delete this episode from the site?')) return;
+      try {
+        await deletePodcast(id);
+        await renderPodcasts();
+      } catch (err) {
+        alert('Could not delete: ' + err.message);
+      }
+    }
+
+    async function togglePodcastVisibility(id, visible) {
+      try {
+        await updatePodcast(id, { is_visible: visible });
+        await renderPodcasts();
+      } catch (err) {
+        alert('Could not update: ' + err.message);
+      }
+    }
+
+    async function movePodcast(id, delta) {
+      const idx = _podcasts.findIndex(p => p.id === id);
+      if (idx === -1) return;
+      const swapIdx = idx + delta;
+      if (swapIdx < 0 || swapIdx >= _podcasts.length) return;
+
+      const a = _podcasts[idx];
+      const b = _podcasts[swapIdx];
+      try {
+        await updatePodcast(a.id, { position: swapIdx });
+        await updatePodcast(b.id, { position: idx });
+        await renderPodcasts();
+      } catch (err) {
+        alert('Could not reorder: ' + err.message);
+      }
     }
 
     // === Edit Business ===

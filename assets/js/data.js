@@ -238,3 +238,85 @@ async function updateBusinessPayment(id, paymentStatus) {
   if (error) throw error;
   return data;
 }
+
+// ---- Podcast Segments ----
+
+// Extract Spotify episode ID from a full URL. Returns null if it doesn't look right.
+function extractSpotifyEpisodeId(url) {
+  if (!url) return null;
+  const m = String(url).match(/\/episode\/([A-Za-z0-9]{16,32})/);
+  return m ? m[1] : null;
+}
+
+// Fetch Spotify oEmbed metadata (title, artwork). No API key required.
+async function fetchSpotifyOEmbed(spotifyUrl) {
+  const oembedUrl = 'https://open.spotify.com/oembed?url=' + encodeURIComponent(spotifyUrl);
+  const res = await fetch(oembedUrl);
+  if (!res.ok) throw new Error('Spotify oEmbed lookup failed (' + res.status + ')');
+  return res.json();
+}
+
+// Load podcasts that should appear on the public homepage.
+async function loadVisiblePodcasts() {
+  const { data, error } = await db
+    .from('podcasts')
+    .select('id, spotify_url, spotify_id, title, artwork_url, description, position')
+    .eq('is_visible', true)
+    .order('position', { ascending: true })
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+// Load every podcast for the admin view, including hidden ones.
+async function loadAllPodcasts() {
+  const { data, error } = await db
+    .from('podcasts')
+    .select('*')
+    .order('position', { ascending: true })
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+// Add a podcast from a Spotify URL. Auto-fills title + artwork via oEmbed.
+async function addPodcast(spotifyUrl) {
+  const spotifyId = extractSpotifyEpisodeId(spotifyUrl);
+  if (!spotifyId) throw new Error("That doesn't look like a Spotify episode URL.");
+
+  let title = '';
+  let artwork_url = '';
+  try {
+    const meta = await fetchSpotifyOEmbed(spotifyUrl);
+    title = meta.title || '';
+    artwork_url = meta.thumbnail_url || '';
+  } catch (_) {
+    // Non-fatal — episode still gets saved with what we have.
+  }
+
+  const { data, error } = await db
+    .from('podcasts')
+    .insert([{
+      spotify_url: spotifyUrl,
+      spotify_id: spotifyId,
+      title,
+      artwork_url,
+      is_visible: true
+    }])
+    .select();
+
+  if (error) throw error;
+  return data && data[0];
+}
+
+async function deletePodcast(id) {
+  const { error } = await db.from('podcasts').delete().eq('id', id);
+  if (error) throw error;
+}
+
+async function updatePodcast(id, fields) {
+  const { error } = await db.from('podcasts').update(fields).eq('id', id);
+  if (error) throw error;
+}
