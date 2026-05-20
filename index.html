@@ -612,13 +612,22 @@
   </section>
 
   <!-- Buy Auburn Podcast Segments -->
-  <section id="podcast-section" class="featured-section" style="display:none;padding:60px 0;border-top:1px solid rgba(255,255,255,0.04);">
+  <style>
+    .podcast-section { display: none; padding: 60px 0; border-top: 1px solid rgba(255,255,255,0.04); }
+    .podcast-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+    .podcast-grid iframe { width: 100%; height: 232px; border: 0; border-radius: 12px; display: block; }
+    @media (max-width: 768px) {
+      .podcast-section { padding: 40px 0; }
+      .podcast-grid { grid-template-columns: 1fr; gap: 16px; }
+    }
+  </style>
+  <section id="podcast-section" class="featured-section podcast-section">
     <div class="container">
       <div class="section-header">
         <h2>Buy Auburn on <a href="https://www.thebarnauburn.com/" target="_blank" rel="noopener" style="color:var(--orange);text-decoration:none;">The Barn</a></h2>
         <p>Listen to the latest Buy Auburn segments — featuring businesses, founders, and stories from across the Auburn family.</p>
       </div>
-      <div id="podcast-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;"></div>
+      <div id="podcast-grid" class="podcast-grid"></div>
     </div>
   </section>
 
@@ -892,10 +901,10 @@
         const pGrid = document.getElementById('podcast-grid');
         pGrid.innerHTML = podcasts.map(p => `
           <div style="background:linear-gradient(160deg,var(--navy-mid) 0%,var(--navy) 100%);border:1px solid rgba(255,255,255,0.04);border-radius:12px;overflow:hidden;">
-            <iframe src="https://open.spotify.com/embed/episode/${encodeURIComponent(p.spotify_id)}?theme=0" width="100%" height="232" frameborder="0" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" style="border-radius:12px;display:block;"></iframe>
+            <iframe src="https://open.spotify.com/embed/episode/${encodeURIComponent(p.spotify_id)}?theme=0" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
           </div>
         `).join('');
-        section.style.display = '';
+        section.style.display = 'block';
       }
     })();
 
