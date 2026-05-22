@@ -196,9 +196,9 @@ function createBusinessCard(business) {
           <span class="card-type-badge">${esc(business.industry)}</span>
           <span class="card-we-badge">BA</span>
         </div>
-        <div class="card-art" style="background:${business.logo_url ? 'transparent' : color}">
+        <div class="card-art" style="background:${business.logo_url ? 'linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))' : color}">
           ${business.logo_url
-            ? `<img src="${business.logo_url}" alt="${business.name} logo" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:2;border-radius:8px;">`
+            ? `<img src="${business.logo_url}" alt="${business.name} logo" style="width:100%;height:100%;object-fit:contain;padding:10px;position:absolute;inset:0;z-index:2;border-radius:8px;">`
             : `<div class="card-logo">${generateLogo(business)}</div><div class="card-art-icon">${icon}</div><div class="card-art-pattern"></div>`
           }
         </div>
