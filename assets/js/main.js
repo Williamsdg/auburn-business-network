@@ -245,10 +245,10 @@ function openBusinessModal(id) {
   modal.innerHTML = `
     <div class="modal">
       <div class="modal-header" style="background:${color};${business.logo_url ? 'position:relative;overflow:hidden;' : ''}">
-        ${business.logo_url ? '<img src="' + business.logo_url + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.2;">' : ''}
+        ${business.logo_url ? '<img src="' + business.logo_url + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;opacity:0.2;">' : ''}
         <button class="modal-close" onclick="closeModal(this)">&times;</button>
         ${business.logo_url
-          ? '<img src="' + business.logo_url + '" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid rgba(255,255,255,0.2);margin-bottom:16px;position:relative;z-index:1;">'
+          ? '<img src="' + business.logo_url + '" style="width:64px;height:64px;border-radius:14px;object-fit:contain;padding:4px;background:rgba(255,255,255,0.9);border:2px solid rgba(255,255,255,0.2);margin-bottom:16px;position:relative;z-index:1;">'
           : '<div class="modal-icon">' + icon + '</div>'
         }
         <h2 style="position:relative;z-index:1;">${esc(business.name)}</h2>
