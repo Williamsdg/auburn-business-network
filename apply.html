@@ -466,6 +466,16 @@
             <p id="address-hint" class="help-text" style="display:none;font-size:0.78rem;color:rgba(255,255,255,0.4);margin-top:4px;">Optional for online businesses — add a physical address if you have one to appear in location-based searches.</p>
           </div>
         </div>
+
+        <!-- Additional locations (for businesses with multiple storefronts) -->
+        <div id="extra-locations-wrap" class="form-group" style="margin-top:-8px;">
+          <div id="extra-locations"></div>
+          <button type="button" id="add-location-btn" onclick="addExtraLocation()" style="display:inline-flex;align-items:center;gap:6px;background:rgba(242,101,34,0.08);border:1px dashed rgba(242,101,34,0.4);color:var(--orange);padding:9px 16px;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit;transition:0.2s;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add another location
+          </button>
+          <p class="help-text" style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-top:6px;">Have more than one storefront? Add each location so customers can find all of them in the directory.</p>
+        </div>
         <div class="form-group">
           <label>Business Logo or Photo</label>
           <div id="logo-upload-area" style="border:2px dashed rgba(255,255,255,0.1);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:0.25s ease;position:relative;" onclick="document.getElementById('logo-input').click()" onmouseover="this.style.borderColor='var(--orange)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
@@ -639,11 +649,58 @@
   <script src="assets/js/analytics.js"></script>
   <script>
     // Populate state dropdown
+    const US_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+    function stateOptionsHtml() {
+      return '<option value="">State</option>' + US_STATES.map(s => `<option value="${s}" style="background:var(--navy);color:#fff;">${s}</option>`).join('');
+    }
     (function() {
-      const states = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
       const sel = document.getElementById('state-select');
-      states.forEach(s => { sel.innerHTML += `<option value="${s}" style="background:var(--navy);color:#fff;">${s}</option>`; });
+      US_STATES.forEach(s => { sel.innerHTML += `<option value="${s}" style="background:var(--navy);color:#fff;">${s}</option>`; });
     })();
+
+    // Additional storefront locations
+    let _extraLocCount = 0;
+    function addExtraLocation() {
+      _extraLocCount++;
+      const id = 'extra-loc-' + _extraLocCount;
+      const wrap = document.createElement('div');
+      wrap.id = id;
+      wrap.style.cssText = 'border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin-bottom:12px;position:relative;background:rgba(0,0,0,0.15);';
+      wrap.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span style="font-size:0.78rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.05em;">Additional Location</span>
+          <button type="button" onclick="document.getElementById('${id}').remove()" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:1.1rem;line-height:1;padding:2px 6px;" title="Remove location">&times;</button>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" class="extra-loc-city" placeholder="e.g. Birmingham">
+          </div>
+          <div class="form-group">
+            <label>State</label>
+            <select class="extra-loc-state">${stateOptionsHtml()}</select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Address</label>
+          <input type="text" class="extra-loc-address" placeholder="e.g. 200 Summit Blvd">
+        </div>`;
+      document.getElementById('extra-locations').appendChild(wrap);
+    }
+
+    // Collect all extra locations as an array of {city, state, address}
+    function collectExtraLocations() {
+      const out = [];
+      document.querySelectorAll('#extra-locations > div').forEach(row => {
+        const city = row.querySelector('.extra-loc-city')?.value.trim();
+        const state = row.querySelector('.extra-loc-state')?.value.trim();
+        const address = row.querySelector('.extra-loc-address')?.value.trim();
+        if (city || address) {
+          out.push({ city: city || null, state: state || null, address: address || null, lat: null, lng: null });
+        }
+      });
+      return out;
+    }
 
     // Progress bar
     window.addEventListener('scroll', function() {
@@ -819,13 +876,24 @@
 
         const isOnline = formData.get('businessType') === 'online';
 
+        // Build the full locations array: primary location first, then any extras.
+        const primaryCity = isOnline ? 'Online' : formData.get('city');
+        const primaryState = isOnline ? 'N/A' : formData.get('state');
+        const primaryAddress = isOnline ? 'Online Business' : formData.get('address');
+        const locations = [];
+        if (primaryCity || primaryAddress) {
+          locations.push({ city: primaryCity || null, state: primaryState || null, address: primaryAddress || null, lat: null, lng: null });
+        }
+        collectExtraLocations().forEach(loc => locations.push(loc));
+
         submitBtn.textContent = 'Submitting application...';
         const appData = {
           business_name: formData.get('businessName'),
           industry: formData.get('industry'),
-          city: isOnline ? 'Online' : formData.get('city'),
-          state: isOnline ? 'N/A' : formData.get('state'),
-          address: isOnline ? 'Online Business' : formData.get('address'),
+          city: primaryCity,
+          state: primaryState,
+          address: primaryAddress,
+          locations: locations,
           business_type: formData.get('businessType'),
           website: website || null,
           bio: formData.get('bio'),

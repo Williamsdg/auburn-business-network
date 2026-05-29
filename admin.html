@@ -484,6 +484,17 @@
             </label>
           </div>
         </div>
+        <div style="grid-column:1/3;border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;margin-top:4px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <label style="font-size:0.75rem;font-weight:600;color:#F26522;text-transform:uppercase;letter-spacing:0.05em;">All Locations</label>
+            <button type="button" onclick="addEditLocationRow()" style="display:inline-flex;align-items:center;gap:5px;background:rgba(242,101,34,0.1);border:1px solid rgba(242,101,34,0.3);color:#F26522;padding:6px 12px;border-radius:7px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add location
+            </button>
+          </div>
+          <p style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin:0 0 12px;">Each location appears in the directory and its filters. The first one is the primary (used for the card and Near Me).</p>
+          <div id="edit-biz-locations"></div>
+        </div>
       </div>
       <div style="display:flex;gap:8px;margin-top:20px;">
         <button onclick="closeEditBiz()" style="flex:1;padding:12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);font-weight:600;font-size:0.88rem;cursor:pointer;font-family:inherit;">Cancel</button>
@@ -1051,7 +1062,70 @@
         preview.innerHTML = '';
       }
       document.getElementById('edit-biz-photo-input').value = '';
+
+      // Populate locations editor. Fall back to the primary location if the
+      // business predates the locations array.
+      const container = document.getElementById('edit-biz-locations');
+      container.innerHTML = '';
+      let locs = Array.isArray(b.locations) ? b.locations.slice() : [];
+      if (locs.length === 0) {
+        const primaryCity = (b.location || '').split(',')[0].trim();
+        locs = [{ city: primaryCity, state: b.state || '', address: b.address || '', lat: b.lat ?? null, lng: b.lng ?? null }];
+      }
+      locs.forEach(loc => addEditLocationRow(loc));
+
       document.getElementById('edit-biz-modal').style.display = 'block';
+    }
+
+    const ADMIN_US_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+
+    function addEditLocationRow(loc) {
+      loc = loc || { city: '', state: '', address: '', lat: null, lng: null };
+      const container = document.getElementById('edit-biz-locations');
+      const row = document.createElement('div');
+      row.className = 'edit-loc-row';
+      row.style.cssText = 'border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px;margin-bottom:10px;background:rgba(0,0,0,0.15);';
+      const stateOpts = '<option value="">State</option>' + ADMIN_US_STATES.map(s => `<option value="${s}" ${s === (loc.state || '') ? 'selected' : ''}>${s}</option>`).join('');
+      row.innerHTML = `
+        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+          <div style="flex:1;min-width:120px;">
+            <label style="display:block;font-size:0.68rem;color:rgba(255,255,255,0.45);margin-bottom:3px;">City</label>
+            <input type="text" class="loc-city" value="${escapeHtml(loc.city || '')}" style="width:100%;padding:8px 10px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:6px;color:#fff;font-size:0.85rem;font-family:inherit;">
+          </div>
+          <div style="width:90px;">
+            <label style="display:block;font-size:0.68rem;color:rgba(255,255,255,0.45);margin-bottom:3px;">State</label>
+            <select class="loc-state" style="width:100%;padding:8px 10px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:6px;color:#fff;font-size:0.85rem;font-family:inherit;">${stateOpts}</select>
+          </div>
+          <div style="flex:2;min-width:160px;">
+            <label style="display:block;font-size:0.68rem;color:rgba(255,255,255,0.45);margin-bottom:3px;">Address</label>
+            <input type="text" class="loc-address" value="${escapeHtml(loc.address || '')}" style="width:100%;padding:8px 10px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:6px;color:#fff;font-size:0.85rem;font-family:inherit;">
+          </div>
+          <button type="button" onclick="this.closest('.edit-loc-row').remove()" title="Remove" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;width:34px;height:34px;border-radius:6px;cursor:pointer;font-size:1rem;line-height:1;font-family:inherit;">&times;</button>
+        </div>
+        <input type="hidden" class="loc-lat" value="${loc.lat ?? ''}">
+        <input type="hidden" class="loc-lng" value="${loc.lng ?? ''}">`;
+      container.appendChild(row);
+    }
+
+    function collectEditLocations() {
+      const out = [];
+      document.querySelectorAll('#edit-biz-locations .edit-loc-row').forEach(row => {
+        const city = row.querySelector('.loc-city').value.trim();
+        const state = row.querySelector('.loc-state').value.trim();
+        const address = row.querySelector('.loc-address').value.trim();
+        const latVal = row.querySelector('.loc-lat').value.trim();
+        const lngVal = row.querySelector('.loc-lng').value.trim();
+        if (city || address) {
+          out.push({
+            city: city || null,
+            state: state || null,
+            address: address || null,
+            lat: latVal === '' ? null : parseFloat(latVal),
+            lng: lngVal === '' ? null : parseFloat(lngVal)
+          });
+        }
+      });
+      return out;
     }
 
     function handleBizPhotoUpload(input) {
@@ -1068,6 +1142,11 @@
 
     async function saveEditBiz() {
       const id = document.getElementById('edit-biz-id').value;
+      const locations = collectEditLocations();
+
+      // Keep the primary single-location columns in sync with the first location
+      // so the card, Near Me, and existing filters keep working.
+      const primary = locations[0];
       const updates = {
         name: document.getElementById('edit-biz-name').value,
         industry: document.getElementById('edit-biz-industry').value,
@@ -1078,8 +1157,17 @@
         contact: document.getElementById('edit-biz-contact').value,
         phone: document.getElementById('edit-biz-phone').value,
         address: document.getElementById('edit-biz-address').value,
-        logo_url: document.getElementById('edit-biz-logo').value || null
+        logo_url: document.getElementById('edit-biz-logo').value || null,
+        locations: locations
       };
+      if (primary) {
+        if (primary.city && primary.state) updates.location = `${primary.city}, ${primary.state}`;
+        else if (primary.city) updates.location = primary.city;
+        updates.state = primary.state || null;
+        updates.address = primary.address || updates.address;
+        if (primary.lat != null) updates.lat = primary.lat;
+        if (primary.lng != null) updates.lng = primary.lng;
+      }
       try {
         const { error } = await db.from('businesses').update(updates).eq('id', id);
         if (error) throw error;

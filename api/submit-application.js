@@ -24,6 +24,7 @@ export default async function handler(req, res) {
         city: app.city,
         state: app.state,
         address: app.address,
+        locations: Array.isArray(app.locations) ? app.locations : [],
         website: app.website || null,
         bio: app.bio,
         owner_name: app.owner_name,

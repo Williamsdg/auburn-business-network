@@ -14,7 +14,7 @@ async function loadBusinesses() {
   try {
     const { data, error } = await db
       .from('businesses')
-      .select('id, name, industry, address, location, state, website, bio, owner, contact, phone, lat, lng, logo_url, instagram, twitter, facebook, tiktok')
+      .select('id, name, industry, address, location, state, locations, website, bio, owner, contact, phone, lat, lng, logo_url, instagram, twitter, facebook, tiktok')
       .order('name');
 
     if (error) throw error;
@@ -75,6 +75,7 @@ async function submitApplication(formData) {
       city: formData.city,
       state: formData.state,
       address: formData.address,
+      locations: Array.isArray(formData.locations) ? formData.locations : [],
       website: formData.website || null,
       bio: formData.bio,
       owner_name: formData.ownerName,
@@ -168,6 +169,19 @@ async function approveAndCreateBusiness(application) {
   // Update application status
   await updateApplicationStatus(application.id, 'approved');
 
+  // Carry the locations array through; if the application predates the field,
+  // synthesize one from its primary city/state/address.
+  let locations = Array.isArray(application.locations) ? application.locations : [];
+  if (locations.length === 0 && (application.city || application.address)) {
+    locations = [{
+      city: application.city || null,
+      state: application.state || null,
+      address: application.address || null,
+      lat: null,
+      lng: null
+    }];
+  }
+
   // Create business listing (unpaid until they pay)
   const { data, error } = await db
     .from('businesses')
@@ -176,6 +190,7 @@ async function approveAndCreateBusiness(application) {
       industry: application.industry,
       address: application.address,
       location: (application.city && application.state) ? `${application.city}, ${application.state}` : 'Auburn, AL',
+      locations: locations,
       website: application.website,
       bio: application.bio,
       owner: application.owner_name,

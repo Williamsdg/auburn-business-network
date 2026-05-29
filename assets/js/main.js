@@ -16,6 +16,24 @@ function escMultiline(str) {
   return esc(str).replace(/\n/g, '<br>');
 }
 
+// Return a business's locations as an array of {city, state, address, label}.
+// Falls back to the primary location columns for single-location businesses.
+function getBusinessLocations(business) {
+  const arr = Array.isArray(business.locations) && business.locations.length ? business.locations : null;
+  if (arr) {
+    return arr.map(loc => {
+      const city = (loc.city || '').trim();
+      const state = (loc.state || '').trim();
+      const label = (city && state) ? `${city}, ${state}` : (city || state || '');
+      return { city, state, address: loc.address || '', label };
+    }).filter(l => l.label || l.address);
+  }
+  if (business.location) {
+    return [{ city: '', state: business.state || '', address: business.address || '', label: business.location }];
+  }
+  return [];
+}
+
 // SVG Icons used throughout the site
 const ICONS = {
   location: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
@@ -212,7 +230,7 @@ function createBusinessCard(business) {
         <div class="card-stats">
           <div class="card-stat">
             <span class="stat-icon">${ICONS.location}</span>
-            <span class="stat-text">${esc(business.location)}</span>
+            <span class="stat-text">${esc(business.location)}${(() => { const n = getBusinessLocations(business).length; return n > 1 ? ` <span style="color:var(--orange);font-weight:700;">+${n - 1}</span>` : ''; })()}</span>
           </div>
           <div class="card-stat">
             <span class="stat-icon">${ICONS.user}</span>
@@ -258,8 +276,20 @@ function openBusinessModal(id) {
         <div class="modal-info-row">
           ${ICONS.location}
           <div>
-            <div class="info-label">Address</div>
-            <div class="info-value">${esc(business.address || business.location)}</div>
+            <div class="info-label">${getBusinessLocations(business).length > 1 ? 'Locations' : 'Address'}</div>
+            <div class="info-value">
+              ${(() => {
+                const locs = getBusinessLocations(business);
+                if (locs.length <= 1) {
+                  return esc(business.address || business.location || '');
+                }
+                return locs.map(l => {
+                  const display = [l.address, l.label].filter(Boolean).join(' · ');
+                  const q = encodeURIComponent(l.address || l.label);
+                  return `<div style="margin-bottom:6px;"><a href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" rel="noopener">${esc(display)} ${ICONS.external}</a></div>`;
+                }).join('');
+              })()}
+            </div>
           </div>
         </div>
         <div class="modal-info-row">

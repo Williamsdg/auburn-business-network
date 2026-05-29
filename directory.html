@@ -565,6 +565,31 @@
 
     STATE_NAMES['Online'] = 'Online';
 
+    // Normalize a business into the set of locations to filter/search against.
+    // Uses the locations[] array if present, else falls back to the primary
+    // location/state columns so single-location businesses still work.
+    function bizLocationEntries(b) {
+      const arr = Array.isArray(b.locations) && b.locations.length ? b.locations : null;
+      if (arr) {
+        return arr.map(loc => {
+          const city = (loc.city || '').trim();
+          const state = (loc.state || '').trim();
+          const label = (city && state) ? `${city}, ${state}` : (city || state || '');
+          return { label, state };
+        }).filter(e => e.label);
+      }
+      // Fallback: single primary location
+      return b.location ? [{ label: b.location, state: b.state || '' }] : [];
+    }
+
+    function bizStates(b) {
+      return [...new Set(bizLocationEntries(b).map(e => e.state).filter(Boolean))];
+    }
+
+    function bizLocationLabels(b) {
+      return bizLocationEntries(b).map(e => e.label);
+    }
+
     function toggleMobileFilters() {
       const filters = document.getElementById('browse-filters');
       const btn = document.getElementById('filter-toggle');
@@ -590,12 +615,19 @@
       const selectedState = stateSelect.value;
       const currentLocation = locationSelect.value;
 
-      // Filter locations based on selected state
+      // Filter locations based on selected state (matches any of a business's states)
       let filtered = _businessesCache;
       if (selectedState) {
-        filtered = filtered.filter(b => b.state === selectedState);
+        filtered = filtered.filter(b => bizStates(b).includes(selectedState));
       }
-      const locations = [...new Set(filtered.map(b => b.location).filter(Boolean))].sort();
+      // Gather every location label across all businesses' location lists
+      const locSet = new Set();
+      filtered.forEach(b => {
+        bizLocationEntries(b).forEach(e => {
+          if (!selectedState || e.state === selectedState) locSet.add(e.label);
+        });
+      });
+      const locations = [...locSet].sort();
 
       locationSelect.innerHTML = '<option value="">All Locations</option>';
       locations.forEach(loc => {
@@ -636,9 +668,10 @@
         industrySelect.innerHTML += `<option value="${ind}">${ind}</option>`;
       });
 
-      // Populate states (with readable names)
-      const states = [...new Set(_businessesCache.filter(b => b.state).map(b => b.state))].sort();
-      states.forEach(st => {
+      // Populate states (with readable names) across all of each business's locations
+      const stateSet = new Set();
+      _businessesCache.forEach(b => bizStates(b).forEach(s => stateSet.add(s)));
+      [...stateSet].sort().forEach(st => {
         stateSelect.innerHTML += `<option value="${st}">${STATE_NAMES[st] || st}</option>`;
       });
 
@@ -662,15 +695,15 @@
       const query = document.getElementById('filter-search').value;
 
       let results = _businessesCache.filter(b => {
-        // State filter
-        if (state && b.state !== state) return false;
-        // Location/city filter
-        if (location && b.location !== location) return false;
+        // State filter — match if ANY of the business's locations is in that state
+        if (state && !bizStates(b).includes(state)) return false;
+        // Location/city filter — match if ANY location label matches
+        if (location && !bizLocationLabels(b).includes(location)) return false;
         // Industry filter
         if (industry && b.industry !== industry) return false;
-        // Text search
+        // Text search (includes every location label)
         if (query) {
-          const searchStr = `${b.name} ${b.bio} ${b.owner} ${b.industry} ${b.location}`.toLowerCase();
+          const searchStr = `${b.name} ${b.bio} ${b.owner} ${b.industry} ${bizLocationLabels(b).join(' ')}`.toLowerCase();
           if (!searchStr.includes(query.toLowerCase())) return false;
         }
         return true;
@@ -774,9 +807,22 @@
       const radius = parseInt(document.getElementById('nearme-radius').value);
       const status = document.getElementById('nearme-status');
 
+      // Collect candidate coordinates from every location a business has,
+      // plus its primary lat/lng, then use the nearest one.
+      function nearestDistance(b) {
+        const coords = [];
+        if (b.lat && b.lng) coords.push([b.lat, b.lng]);
+        if (Array.isArray(b.locations)) {
+          b.locations.forEach(loc => {
+            if (loc.lat && loc.lng) coords.push([loc.lat, loc.lng]);
+          });
+        }
+        if (coords.length === 0) return Infinity;
+        return Math.min(...coords.map(([la, ln]) => getDistance(userLat, userLng, la, ln)));
+      }
+
       const nearby = _businessesCache
-        .filter(b => b.lat && b.lng)
-        .map(b => ({ ...b, distance: getDistance(userLat, userLng, b.lat, b.lng) }))
+        .map(b => ({ ...b, distance: nearestDistance(b) }))
         .filter(b => b.distance <= radius)
         .sort((a, b) => a.distance - b.distance);
 
