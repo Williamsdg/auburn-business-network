@@ -371,13 +371,14 @@
                 <tr>
                   <th style="width:80px;">Order</th>
                   <th>Episode</th>
+                  <th style="width:220px;">Featured business</th>
                   <th style="width:120px;">Visible</th>
                   <th style="width:140px;">Added</th>
                   <th style="width:120px;">Actions</th>
                 </tr>
               </thead>
               <tbody id="podcasts-body">
-                <tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,0.4);padding:40px;">Loading...</td></tr>
+                <tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.4);padding:40px;">Loading...</td></tr>
               </tbody>
             </table>
           </div>
@@ -939,11 +940,21 @@
       }
 
       if (_podcasts.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,0.4);padding:40px;">No podcasts yet — add one above.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.4);padding:40px;">No podcasts yet — add one above.</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = _podcasts.map((p, i) => `
+      // Build the business <option> list once — only live (paid/waived) businesses,
+      // alphabetized, so Kyle links a segment to a company that's actually on the directory.
+      const liveBiz = _allBusinesses
+        .filter(b => b.payment_status === 'paid' || b.payment_status === 'waived')
+        .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+      tbody.innerHTML = _podcasts.map((p, i) => {
+        const options = ['<option value="">— None —</option>']
+          .concat(liveBiz.map(b => `<option value="${escapeHtml(b.id)}" ${b.id === p.business_id ? 'selected' : ''}>${escapeHtml(b.name)}</option>`))
+          .join('');
+        return `
         <tr>
           <td>
             <div style="display:flex;gap:4px;">
@@ -961,6 +972,12 @@
             </div>
           </td>
           <td>
+            <select onchange="handleLinkBusiness('${p.id}', this.value)" style="width:100%;padding:8px 10px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#fff;font-size:0.82rem;outline:none;font-family:inherit;cursor:pointer;">
+              ${options}
+            </select>
+            ${liveBiz.length === 0 ? '<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-top:4px;">No live businesses yet.</div>' : ''}
+          </td>
+          <td>
             <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:0.82rem;">
               <input type="checkbox" ${p.is_visible ? 'checked' : ''} onchange="togglePodcastVisibility('${p.id}', this.checked)" style="cursor:pointer;">
               <span style="color:${p.is_visible ? '#22c55e' : 'rgba(255,255,255,0.4)'};">${p.is_visible ? 'Visible' : 'Hidden'}</span>
@@ -971,7 +988,20 @@
             <button onclick="handleDeletePodcast('${p.id}')" style="padding:6px 12px;border-radius:6px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">Delete</button>
           </td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
+    }
+
+    // Link / unlink a podcast segment to a business. Empty value clears the link.
+    async function handleLinkBusiness(id, businessId) {
+      try {
+        await updatePodcast(id, { business_id: businessId || null });
+        const p = _podcasts.find(x => x.id === id);
+        if (p) p.business_id = businessId || null;
+      } catch (err) {
+        alert('Could not update the featured business: ' + (err.message || err));
+        await renderPodcasts(); // re-sync the dropdown to the real DB state
+      }
     }
 
     async function handleAddPodcast() {

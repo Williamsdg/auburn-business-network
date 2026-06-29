@@ -12,6 +12,9 @@ CREATE TABLE podcasts (
   description TEXT,
   position INT DEFAULT 0,
   is_visible BOOLEAN DEFAULT true,
+  -- Optional: link this segment to a business so the homepage shows a
+  -- "Featured" chip that opens that company's profile. NULL = no link.
+  business_id UUID REFERENCES businesses(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

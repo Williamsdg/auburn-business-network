@@ -275,7 +275,7 @@ async function fetchSpotifyOEmbed(spotifyUrl) {
 async function loadVisiblePodcasts() {
   const { data, error } = await db
     .from('podcasts')
-    .select('id, spotify_url, spotify_id, title, artwork_url, description, position')
+    .select('id, spotify_url, spotify_id, title, artwork_url, description, position, business_id')
     .eq('is_visible', true)
     .order('position', { ascending: true })
     .order('created_at', { ascending: false });
