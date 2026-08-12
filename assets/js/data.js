@@ -97,6 +97,62 @@ async function submitApplication(formData) {
   return data;
 }
 
+// ---- Logo upload (shared by apply form + admin) ----
+
+// Resize/re-encode an image before upload. Cards render logos at ~150px, so
+// anything beyond maxDim px is wasted bytes — a raw phone photo can be 5MB+.
+// SVGs and already-small files pass through untouched.
+async function compressLogoFile(file, maxDim = 800, quality = 0.82) {
+  if (file.type === 'image/svg+xml' || file.size < 150 * 1024) return file;
+
+  const img = await new Promise((resolve, reject) => {
+    const el = new Image();
+    el.onload = () => resolve(el);
+    el.onerror = () => reject(new Error('Could not read image file'));
+    el.src = URL.createObjectURL(file);
+  });
+
+  const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(img.naturalWidth * scale);
+  canvas.height = Math.round(img.naturalHeight * scale);
+  canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+  URL.revokeObjectURL(img.src);
+
+  // WebP keeps PNG transparency at JPEG-like sizes; fall back to the original
+  // format (preserving alpha) on browsers without WebP encoding.
+  let blob = await new Promise(r => canvas.toBlob(r, 'image/webp', quality));
+  if (!blob || blob.type !== 'image/webp') {
+    const fallback = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+    blob = await new Promise(r => canvas.toBlob(r, fallback, quality));
+  }
+  if (!blob || blob.size >= file.size) return file;
+  return blob;
+}
+
+// Compress + upload a logo to Supabase Storage, returns the public URL.
+// Filenames are unique, so the file is immutable — cache it for a year.
+async function uploadLogoToStorage(file) {
+  const compressed = await compressLogoFile(file);
+  const ext = { 'image/webp': 'webp', 'image/png': 'png', 'image/jpeg': 'jpg', 'image/svg+xml': 'svg' }[compressed.type]
+    || (file.name || 'logo.jpg').split('.').pop().toLowerCase();
+  const fileName = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+
+  const { error } = await db.storage
+    .from('business-logos')
+    .upload(fileName, compressed, {
+      cacheControl: '31536000',
+      contentType: compressed.type || undefined,
+      upsert: false
+    });
+  if (error) throw error;
+
+  const { data: urlData } = db.storage
+    .from('business-logos')
+    .getPublicUrl(fileName);
+  return urlData.publicUrl;
+}
+
 // Submit a travel alert subscription
 async function submitTravelSubscription({ email, state, city, services, sports }) {
   const { data, error } = await db

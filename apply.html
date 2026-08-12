@@ -644,8 +644,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
-  <script src="assets/js/data.js"></script>
-  <script src="assets/js/main.js"></script>
+  <script src="assets/js/data.js?v=2"></script>
+  <script src="assets/js/main.js?v=8"></script>
   <script src="assets/js/analytics.js"></script>
   <script>
     // Populate state dropdown
@@ -817,20 +817,7 @@
     }
 
     async function uploadLogo(file) {
-      const ext = file.name.split('.').pop().toLowerCase();
-      const fileName = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
-
-      const { data, error } = await db.storage
-        .from('business-logos')
-        .upload(fileName, file, { cacheControl: '3600', upsert: false });
-
-      if (error) throw error;
-
-      const { data: urlData } = db.storage
-        .from('business-logos')
-        .getPublicUrl(fileName);
-
-      return urlData.publicUrl;
+      return uploadLogoToStorage(file);
     }
 
     async function handleApply(e) {

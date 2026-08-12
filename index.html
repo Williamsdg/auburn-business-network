@@ -973,8 +973,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
-  <script src="assets/js/data.js"></script>
-  <script src="assets/js/main.js?v=7"></script>
+  <script src="assets/js/data.js?v=2"></script>
+  <script src="assets/js/main.js?v=8"></script>
   <script src="assets/js/analytics.js"></script>
   <script>
     (async () => {
@@ -1006,7 +1006,7 @@
           if (biz) {
             const initials = (biz.name || '?').split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
             const logo = biz.logo_url
-              ? `<img class="pf-logo" src="${esc(biz.logo_url)}" alt="${esc(biz.name)} logo">`
+              ? `<img class="pf-logo" src="${esc(biz.logo_url)}" alt="${esc(biz.name)} logo" loading="lazy" decoding="async">`
               : `<div class="pf-logo-fallback">${esc(initials)}</div>`;
             feature = `
               <button class="podcast-feature" onclick="openBusinessModal('${esc(biz.id)}')" aria-label="View ${esc(biz.name)} profile">

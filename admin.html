@@ -512,7 +512,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
-  <script src="assets/js/data.js"></script>
+  <script src="assets/js/data.js?v=2"></script>
   <script>
     // Mobile nav toggle
     document.addEventListener('DOMContentLoaded', () => {
@@ -634,7 +634,7 @@
           <div class="app-card-header">
             <div style="display:flex;align-items:center;gap:14px;">
               ${app.logo_url
-                ? '<img src="' + app.logo_url + '" style="width:48px;height:48px;border-radius:10px;object-fit:cover;border:2px solid rgba(242,101,34,0.2);flex-shrink:0;">'
+                ? '<img src="' + app.logo_url + '" loading="lazy" decoding="async" style="width:48px;height:48px;border-radius:10px;object-fit:cover;border:2px solid rgba(242,101,34,0.2);flex-shrink:0;">'
                 : '<div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--navy-mid),var(--navy));border:2px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;color:var(--orange);flex-shrink:0;">' + app.business_name.split(/\\s+/).slice(0,2).map(function(w){return w[0]}).join('') + '</div>'
               }
               <div>
@@ -1158,14 +1158,19 @@
       return out;
     }
 
-    function handleBizPhotoUpload(input) {
+    async function handleBizPhotoUpload(input) {
       if (!input.files || !input.files[0]) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        document.getElementById('edit-biz-logo').value = e.target.result;
-        document.getElementById('edit-biz-logo-preview').innerHTML = `<img src="${e.target.result}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,0.1);">`;
-      };
-      reader.readAsDataURL(input.files[0]);
+      // Upload to Storage and store the URL — never a base64 data URL, which
+      // would bloat the businesses table and every visitor's directory fetch.
+      const preview = document.getElementById('edit-biz-logo-preview');
+      preview.innerHTML = '<span style="color:rgba(255,255,255,0.5);font-size:0.8rem;">Uploading…</span>';
+      try {
+        const url = await uploadLogoToStorage(input.files[0]);
+        document.getElementById('edit-biz-logo').value = url;
+        preview.innerHTML = `<img src="${url}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,0.1);">`;
+      } catch (err) {
+        preview.innerHTML = '<span style="color:#e05252;font-size:0.8rem;">Upload failed: ' + err.message + '</span>';
+      }
     }
     function closeEditBiz() { document.getElementById('edit-biz-modal').style.display = 'none'; }
     document.getElementById('edit-biz-modal').addEventListener('click', function(e) { if (e.target === this) closeEditBiz(); });
